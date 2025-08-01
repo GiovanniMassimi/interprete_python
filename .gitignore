@@ -1,0 +1,5 @@
+
+interpreter
+*.o
+.DS_Store
+.vscode/
