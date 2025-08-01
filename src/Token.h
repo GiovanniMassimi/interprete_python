@@ -78,6 +78,8 @@ struct Token {
 };
 
 // Output stream overload per stampare token leggibili
-inline std::ostream& operator<<(std::ostream& os, const Token& t);
-
+inline std::ostream& operator<<(std::ostream& os, const Token& t){
+    os << "(" << Token::tag2string[t.tag] << ",\"" << t.word << "\")";
+	return os;
+};
 #endif
