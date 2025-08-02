@@ -17,55 +17,51 @@ struct Token {
     static constexpr int ADD    =  3; // +
     static constexpr int SUB    =  4; // -
     static constexpr int MUL    =  5; // *
-    static constexpr int DIV    =  6; // //
-    static constexpr int ID     =  7; // identifier
-    static constexpr int KW     =  8; // keyword
+    static constexpr int DIV    =  6; // /
+    static constexpr int DIVINT =  7; // //
+    static constexpr int MOD    =  8; // %
     static constexpr int PRINT  =  9;
-    static constexpr int CONST  = 10; // integer number
-    static constexpr int UNKNOWN= 11;
-    static constexpr int NEWLINE= 12;
-    static constexpr int INDENT = 13;
-    static constexpr int DEDENT = 14;
-    static constexpr int LBRACK = 15; // [
-    static constexpr int RBRACK = 16; // ]
-    static constexpr int DOT    = 17; // .
-    static constexpr int COLON  = 18; // :
-    static constexpr int COMMA  = 19; // ,
-    static constexpr int TRUE_  = 20;
-    static constexpr int FALSE_ = 21;
-    static constexpr int IF     = 22;
-    static constexpr int ELIF   = 23;
-    static constexpr int ELSE   = 24;
-    static constexpr int WHILE  = 25;
-    static constexpr int BREAK  = 26;
-    static constexpr int CONTINUE = 27;
-    static constexpr int AND    = 28;
-    static constexpr int OR     = 29;
-    static constexpr int NOT    = 30;
-    static constexpr int EQEQ   = 31; // ==
-    static constexpr int NOTEQ  = 32; // !=
-    static constexpr int LT     = 33; // <
-    static constexpr int LE     = 34; // <=
-    static constexpr int GE     = 35; // >=
-    static constexpr int GT     = 36; // >
-    static constexpr int LIST   = 37;
-    static constexpr int APPEND = 38;
-    static constexpr int END    = 39; // EOF
+    static constexpr int NUM    = 10; // integer number
+    static constexpr int NEWLINE= 11;
+    static constexpr int INDENT = 12;
+    static constexpr int DEDENT = 13;
+    static constexpr int SEMCOL = 14; // ;
+    static constexpr int DOT    = 15; // .
+    static constexpr int COLON  = 16; // :
+    static constexpr int ID     = 17; // Identificatori
+    static constexpr int TRUE_  = 18;
+    static constexpr int FALSE_ = 19;
+    static constexpr int IF     = 20;
+    static constexpr int ELIF   = 21;
+    static constexpr int ELSE   = 22;
+    static constexpr int WHILE  = 23;
+    static constexpr int BREAK  = 24;
+    static constexpr int CONTINUE = 25;
+    static constexpr int AND    = 26;
+    static constexpr int OR     = 27;
+    static constexpr int NOT    = 28;
+    static constexpr int EQEQ   = 29; // ==
+    static constexpr int NOTEQ  = 30; // !=
+    static constexpr int LT     = 31; // <
+    static constexpr int LE     = 32; // <=
+    static constexpr int GE     = 33; // >=
+    static constexpr int GT     = 34; // >
+    static constexpr int LIST   = 35;
+    static constexpr int APPEND = 36;
+    static constexpr int END    = 37; // EOF
+    static constexpr int LB     = 38; // [
+    static constexpr int RB     = 39; // ]
 
-    // Human-readable token words (for debug/printing)
     static constexpr const char* id2word[] = {
-        "(", ")", "=", "+", "-", "*", "//", "ID", "KW", "print", "CONST", "UNKNOWN",
-        "NEWLINE", "INDENT", "DEDENT", "[", "]", ".", ":", ",",
-        "True", "False", "if", "elif", "else", "while", "break", "continue",
-        "and", "or", "not", "==", "!=", "<", "<=", ">=", ">", "list", "append", "EOF"
+        "(", ")", "=", "+", "-", "*", "/", "//", "%", "PRINT", "NUM",
+        "NEWLINE", "INDENT", "DEDENT", ";", ".", ":", "ID", "TRUE", "FALSE", "IF", "ELIF", "ELSE", 
+        "WHILE", "BREAK", "CONTINUE", "AND", "OR", "NOT", "==", "!=", "<", "<=", ">=", ">", "LIST", "APPEND", "END", "[", "]"
     };
-
     // Symbolic token type names
     static constexpr const char* tag2string[] = {
-        "LP", "RP", "EQ", "ADD", "SUB", "MUL", "DIV", "ID", "KW", "PRINT", "CONST", "UNKNOWN",
-        "NEWLINE", "INDENT", "DEDENT", "LBRACK", "RBRACK", "DOT", "COLON", "COMMA",
-        "TRUE", "FALSE", "IF", "ELIF", "ELSE", "WHILE", "BREAK", "CONTINUE",
-        "AND", "OR", "NOT", "EQEQ", "NOTEQ", "LT", "LE", "GE", "GT", "LIST", "APPEND", "END"
+        "LP", "RP", "EQ", "ADD", "SUB", "MUL", "DIV", "DIVINT", "MOD", "PRINT", "NUM",
+        "NEWLINE", "INDENT", "DEDENT", "SEMCOL", "DOT", "COLON", "ID", "TRUE_", "FALSE_", "IF", "ELIF", "ELSE",
+        "WHILE", "BREAK", "CONTINUE", "AND", "OR", "NOT","EQEQ", "NOTEQ", "LT", "LE", "GE", "GT","LIST", "APPEND", "END", "LB", "RB"
     };
 
     Token(int t, const std::string& w) : tag{ t }, word{ w } {}
@@ -78,8 +74,9 @@ struct Token {
 };
 
 // Output stream overload per stampare token leggibili
-inline std::ostream& operator<<(std::ostream& os, const Token& t){
-    os << "(" << Token::tag2string[t.tag] << ",\"" << t.word << "\")";
-	return os;
-};
+inline std::ostream& operator<<(std::ostream& os, const Token& t) {
+    os << "Token(" << Token::tag2string[t.tag] << ", \"" << t.word << "\")";
+    return os;
+}
+
 #endif

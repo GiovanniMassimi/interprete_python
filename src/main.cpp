@@ -1,20 +1,27 @@
 #include <iostream>
-#include "Token.h"
+#include <fstream>
+#include <vector>
+#include "Lexer.h"
 
 int main() {
-    // Crea alcuni token manualmente
-    Token t1(Token::ID, "x");
-    Token t2(Token::EQ, "=");
-    Token t3(Token::CONST, "42");
-    Token t4(Token::ADD, "+");
-    Token t5(Token::CONST, "8");
+    std::ifstream input("PASS_SumVec.txt");
+    if (!input.is_open()) {
+        std::cerr << "Errore nell'apertura del file.\n";
+        return 1;
+    }
 
-    // Stampali a schermo
-    std::cout << t1 << "\n";
-    std::cout << t2 << "\n";
-    std::cout << t3 << "\n";
-    std::cout << t4 << "\n";
-    std::cout << t5 << "\n";
+    Lexer lexer;
+    std::vector<Token> tokens;
+
+    try {
+    lexer.tokenizeFile(input, tokens);
+    for (const auto& token : tokens) {
+        std::cout << token << "\n";  // usa l'overload <<
+    }
+    } catch (const std::exception& e) {
+    std::cerr << "Errore durante la tokenizzazione: " << e.what() << "\n";
+    return 1;
+    }
 
     return 0;
 }
