@@ -22,4 +22,9 @@ struct EvaluationError : std::runtime_error {
   
 };
 
+struct ParseException : std::runtime_error {
+	ParseException(const char* msg) : std::runtime_error(msg) {}
+	ParseException(std::string msg) : std::runtime_error(msg.c_str()) {}
+};
+
 #endif

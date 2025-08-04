@@ -1,0 +1,87 @@
+#include "Syntax.h"
+#include "Visitor.h"
+
+void Program::accept(Visitor& visitor) const {
+    visitor.visit(*this);
+}
+
+void Statment::accept(Visitor& visitor) const {
+    visitor.visit(*this);
+}
+
+void Expression::accept(Visitor& visitor) const {
+    visitor.visit(*this);
+}
+
+void Assignment::accept(Visitor& visitor) const {
+    visitor.visit(*this);
+}
+
+void ListAssignment::accept(Visitor& visitor) const {
+    visitor.visit(*this);
+}
+
+void ListCreation::accept(Visitor& visitor) const {
+    visitor.visit(*this);
+}
+
+void Append::accept(Visitor& visitor) const {
+    visitor.visit(*this);
+}
+
+void Break::accept(Visitor& visitor) const {
+    visitor.visit(*this);
+}
+
+void Continue::accept(Visitor& visitor) const {
+    visitor.visit(*this);
+}
+
+void Print::accept(Visitor& visitor) const {
+    visitor.visit(*this);
+}
+
+void WhileStatement::accept(Visitor& visitor) const {
+    visitor.visit(*this);
+}
+
+void IfStatement::accept(Visitor& visitor) const {
+    visitor.visit(*this);
+}
+
+void ReturnStatement::accept(Visitor& visitor) const {
+    visitor.visit(*this);
+}
+
+void Join::accept(Visitor& visitor) const {
+    visitor.visit(*this);
+}
+
+void Equality::accept(Visitor& visitor) const {
+    visitor.visit(*this);
+}
+
+void Relational::accept(Visitor& visitor) const {
+    visitor.visit(*this);
+}
+
+void NumExpr::accept(Visitor& visitor) const {
+    visitor.visit(*this);
+}
+
+void Term::accept(Visitor& visitor) const {
+    visitor.visit(*this);
+}
+
+void Unary::accept(Visitor& visitor) const {
+    visitor.visit(*this);
+}
+
+void Factor::accept(Visitor& visitor) const {
+    visitor.visit(*this);
+}
+
+//non lo uso
+void Location::accept(Visitor& visitor) const {
+    visitor.visit(*this);
+}

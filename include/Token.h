@@ -17,7 +17,7 @@ struct Token {
     static constexpr int ADD    =  3; // +
     static constexpr int SUB    =  4; // -
     static constexpr int MUL    =  5; // *
-    static constexpr int DIV    =  6; // /
+    static constexpr int DIV    =  6; // / non serve ma non voglio spostare gli indici
     static constexpr int DIVINT =  7; // //
     static constexpr int MOD    =  8; // %
     static constexpr int PRINT  =  9;

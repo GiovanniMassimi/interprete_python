@@ -1,27 +1,49 @@
 #include <iostream>
-#include <fstream>
-#include <vector>
-#include "Lexer.h"
+#include "Syntax.h"
+#include "Token.h"
+#include "Visitor.h"
+
+// Visitor che stampa cosa viene visitato
+struct TestVisitor : Visitor {
+    void visit(Assignment& stmt) override {
+        std::cout << "Visitato Assignment: " << stmt.id.lexeme << "\n";
+    }
+
+    void visit(Program& prog) override {
+        std::cout << "Visitato Program\n";
+        for (auto stmt : prog.stmts)
+            stmt->accept(*this);
+    }
+
+    // Definisci gli altri visit(...) come vuoti se non ti servono ora
+    void visit(Print&) override {}
+    void visit(IfStatment&) override {}
+    void visit(WhileStatment&) override {}
+    void visit(Break&) override {}
+    void visit(Continue&) override {}
+    void visit(Append&) override {}
+    void visit(ListCreation&) override {}
+    void visit(Expression&) override {}
+    void visit(Statment&) override {}
+};
 
 int main() {
-    std::ifstream input("PASS_SumVec.txt");
-    if (!input.is_open()) {
-        std::cerr << "Errore nell'apertura del file.\n";
-        return 1;
-    }
+    // Crea token dummy per il test
+    Token id(TokenType::IDENTIFIER, "x");
+    Token eq(TokenType::EQUAL, "=");
+    Token value(TokenType::NUMBER, "5");
 
-    Lexer lexer;
-    std::vector<Token> tokens;
+    // Costruisci un Assignment manualmente: x = 5
+    Assignment* assign = new Assignment(id, eq, value);
 
-    try {
-    lexer.tokenizeFile(input, tokens);
-    for (const auto& token : tokens) {
-        std::cout << token << "\n";  // usa l'overload <<
-    }
-    } catch (const std::exception& e) {
-    std::cerr << "Errore durante la tokenizzazione: " << e.what() << "\n";
-    return 1;
-    }
+    // Inseriscilo in un Program
+    Program prog;
+    prog.stmts.push_back(assign);
 
+    // Applica il visitor
+    TestVisitor visitor;
+    prog.accept(visitor);
+
+    delete assign; // pulizia
     return 0;
 }
