@@ -64,18 +64,20 @@ struct Token {
         "WHILE", "BREAK", "CONTINUE", "AND", "OR", "NOT","EQEQ", "NOTEQ", "LT", "LE", "GE", "GT","LIST", "APPEND", "END", "LB", "RB"
     };
 
-    Token(int t, const std::string& w) : tag{ t }, word{ w } {}
+    Token(int t, const std::string& w, std::pair<int, int> pos) : tag{ t }, word{ w }, pos{ pos } {}
     ~Token() = default;
     Token(const Token&) = default;
     Token& operator=(const Token&) = default;
 
-    int tag;           
+    int tag;
     std::string word;  
+    std::pair<int, int> pos;
+   
 };
 
 // Output stream overload per stampare token leggibili
 inline std::ostream& operator<<(std::ostream& os, const Token& t) {
-    os << "Token(" << Token::tag2string[t.tag] << ", \"" << t.word << "\")";
+    os << "Token(" << Token::tag2string[t.tag] << ", \"" << t.word << "\", (" << t.pos.first << ", " << t.pos.second  << "))";
     return os;
 }
 

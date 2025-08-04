@@ -152,13 +152,23 @@ struct CompoundStatment : Statment {
     virtual ~CompoundStatment() = default;
 };
 
+struct Block {
+    Token newline;
+    Token indent;
+    std::vector<Statment*> stmts;
+    Token dedent;
+
+    Block(Token newline, Token indent, std::vector<Statment*> stmts, Token dedent)
+        : newline(newline), indent(indent), stmts(std::move(stmts)), dedent(dedent) {}
+};
+
 struct WhileStatement : CompoundStatment {
     Token while_token;
     Expression* condition;
     Token colon;
-    Program block;
+    Block* block;
 
-    WhileStatement(Token while_token, Expression* condition, Token colon, Program block)
+    WhileStatement(Token while_token, Expression* condition, Token colon, Block* block)
         : while_token(while_token), condition(condition), colon(colon), block(block) {}
 
     void accept(Visitor& visitor) const override;
@@ -168,31 +178,33 @@ struct ElifBlock {
     Token elif_token;
     Expression* condition;
     Token colon;
-    Program block;
+    Block* block;
 
-    ElifBlock(Token elif_token, Expression* condition, Token colon, Program block)
+    ElifBlock(Token elif_token, Expression* condition, Token colon, Block* block)
         : elif_token(elif_token), condition(condition), colon(colon), block(block) {}
+    void accept(Visitor& visitor) const override;
 };
 
 struct ElseBlock {
     Token else_token;
     Token colon;
-    Program block;
+    Block* block;
 
-    ElseBlock(Token else_token, Token colon, Program block)
+    ElseBlock(Token else_token, Token colon, Block* block)
         : else_token(else_token), colon(colon), block(block) {}
+    void accept(Visitor& visitor) const override;
 };
 
 struct IfStatement : CompoundStatment {
     Token if_token;
     Expression* condition;
     Token colon;
-    Program block;
-    std::vector<ElifBlock> elif_blocks;
+    Block* block;
+    std::vector<ElifBlock*> elif_blocks;
     ElseBlock* else_block;
 
-    IfStatement(Token if_token, Expression* condition, Token colon, Program block,
-        std::vector<ElifBlock> elif_blocks = {},ElseBlock* else_block = nullptr)
+    IfStatement(Token if_token, Expression* condition, Token colon, Block* block,
+        std::vector<ElifBlock*> elif_blocks = {}, ElseBlock* else_block = nullptr)
         : if_token(if_token), condition(condition), colon(colon), block(block),
           elif_blocks(std::move(elif_blocks)), else_block(else_block) {}
 
@@ -232,12 +244,12 @@ struct Equality : Expression {
     void accept(Visitor& visitor) const override;
 };
 
-struct Relational : Expression {
+struct Relation : Expression {
     Expression* left;
     Token op; // '<', '<=', '>=', '>'
     Expression* right;
 
-    Relational(Expression* left, Token op, Expression* right)
+    Relation(Expression* left, Token op, Expression* right)
         : left(left), op(op), right(right) {}
 
     void accept(Visitor& visitor) const override;
@@ -292,7 +304,7 @@ struct Factor : Expression {
     void accept(Visitor& visitor) const override;
 };
 
-// non lo uso
+// non lo ho usato
 struct Location : Expression {
     Token id; 
     Token LB; 
@@ -305,6 +317,16 @@ struct Location : Expression {
     Location(Token id) : id(id), LB(), index(nullptr), RB() {}
 
     void accept(Visitor& visitor) const override;
+};
+
+struct Literal {
+    Token value; // può essere un numero, True o False
+
+    Literal(Token value) : value(value) {}
+
+    void accept(Visitor& visitor) const {
+        visitor.visit(*this);
+    }
 };
 
 

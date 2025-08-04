@@ -85,3 +85,7 @@ void Factor::accept(Visitor& visitor) const {
 void Location::accept(Visitor& visitor) const {
     visitor.visit(*this);
 }
+
+void Literal::accept(Visitor& visitor) const {
+    visitor.visit(*this);
+}

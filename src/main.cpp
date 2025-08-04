@@ -1,49 +1,33 @@
 #include <iostream>
-#include "Syntax.h"
+#include <fstream>
+#include <vector>
+#include "Lexer.h"
 #include "Token.h"
-#include "Visitor.h"
 
-// Visitor che stampa cosa viene visitato
-struct TestVisitor : Visitor {
-    void visit(Assignment& stmt) override {
-        std::cout << "Visitato Assignment: " << stmt.id.lexeme << "\n";
+int main(int argc, char* argv[]) {
+    if (argc < 2) {
+        std::cerr << "Uso: " << argv[0] << " <file.txt>\n";
+        return 1;
     }
 
-    void visit(Program& prog) override {
-        std::cout << "Visitato Program\n";
-        for (auto stmt : prog.stmts)
-            stmt->accept(*this);
+    std::ifstream input(argv[1]);
+    if (!input.is_open()) {
+        std::cerr << "Errore nell'apertura del file: " << argv[1] << "\n";
+        return 1;
     }
 
-    // Definisci gli altri visit(...) come vuoti se non ti servono ora
-    void visit(Print&) override {}
-    void visit(IfStatment&) override {}
-    void visit(WhileStatment&) override {}
-    void visit(Break&) override {}
-    void visit(Continue&) override {}
-    void visit(Append&) override {}
-    void visit(ListCreation&) override {}
-    void visit(Expression&) override {}
-    void visit(Statment&) override {}
-};
+    Lexer lexer;
+    std::vector<Token> tokens;
 
-int main() {
-    // Crea token dummy per il test
-    Token id(TokenType::IDENTIFIER, "x");
-    Token eq(TokenType::EQUAL, "=");
-    Token value(TokenType::NUMBER, "5");
+    try {
+        lexer.tokenizeFile(input, tokens);  // o lexer.tokenize(input, tokens);
+        for (const Token& token : tokens) {
+            std::cout << token << "\n";  // richiede operator<< definito per Token
+        }
+    } catch (const std::exception& ex) {
+        std::cerr << "Errore durante la tokenizzazione: " << ex.what() << "\n";
+        return 1;
+    }
 
-    // Costruisci un Assignment manualmente: x = 5
-    Assignment* assign = new Assignment(id, eq, value);
-
-    // Inseriscilo in un Program
-    Program prog;
-    prog.stmts.push_back(assign);
-
-    // Applica il visitor
-    TestVisitor visitor;
-    prog.accept(visitor);
-
-    delete assign; // pulizia
     return 0;
 }
