@@ -1,6 +1,8 @@
 #if !defined(SYNTAX_H)
 #define SYNTAX_H
 
+
+
 /*
 <program>→ <stmts>endmarker
 <stmts>→ <stmt><stmts>| ϵ
@@ -39,188 +41,154 @@
 
 #include <string>
 #include <vector>
+#include "Token.h"
 
 // Forward declarations
 class Visitor;
 
-struct Statment {
+struct Statement {
     virtual void accept(Visitor& visitor) const;
-    virtual ~Statment() = default; 
+    virtual ~Statement() = default; 
 };
 
 struct Program {
     Program() = default;
     ~Program() = default;
 
-    std::vector<Statment*> stmts;
+    std::vector<Statement*> stmts;
 
     void accept(Visitor& visitor) const;
 };
 
-struct Expression : Statment {
+struct Expression : Statement {
     virtual void accept(Visitor& visitor) const = 0;
     virtual ~Expression() = default; 
 };
 
-struct SimpleStatment : Statment {
+struct SimpleStatement : Statement {
     virtual void accept(Visitor& visitor) const = 0;
-    virtual ~SimpleStatment() = default;
+    virtual ~SimpleStatement() = default;
 };
 
-struct Assignment : SimpleStatment {
+struct Assignment : SimpleStatement {
     Token id;
-    Token eq;
     Expression* value;
 
-    Assignment(Token id, Token eq, Expression* value)
-        : id(id), eq(eq), value(value) {}
+    Assignment(Token id, Expression* value)
+        : id(id), value(value) {}
 
-    void accept(Visitor& visitor) const override;
+    void accept(Visitor& visitor) const ;
 };
 
-struct ListAssignment : SimpleStatment {
+struct ListAssignment : SimpleStatement {
     Token id;
-    Token LB;
     Expression* pos;
-    Token RB;
-    Token eq;
     Expression* value;
 
-    ListAssignment(Token id, Token LB, Expression* pos, Token RB, Token eq, Expression* value)
-        : id(id), LB(LB), pos(pos), RB(RB), eq(eq), value(value) {}
+    ListAssignment(Token id, Expression* pos, Expression* value)
+        : id(id), pos(pos), value(value) {}
 
-    void accept(Visitor& visitor) const override;
+    void accept(Visitor& visitor) const ;
 };
 
-struct ListCreation : SimpleStatment {
+struct ListCreation : SimpleStatement {
     Token id;
-    Token eq;
-    Token list_token;
-    Token LP;
-    Token RP;
 
-    ListCreation(Token id, Token eq, Token list_token, Token LP, Token RP)
-        : id(id), eq(eq), list_token(list_token), LP(LP), RP(RP) {}
+    ListCreation(Token id)
+        : id(id) {}
 
-    void accept(Visitor& visitor) const override;
+    void accept(Visitor& visitor) const ;
 };
 
-struct Append : SimpleStatment {
+struct Append : SimpleStatement {
     Token id;
-    Token dot;
-    Token append_token;
-    Token LP;
-    Expression* value;
-    Token RP;
+    Expression* expr;
 
-    Append(Token id, Token dot, Token append_token, Token LP, Expression* value, Token RP)
-        : id(id), dot(dot), append_token(append_token), LP(LP), value(value), RP(RP) {}
+    Append(Token id, Expression* expr)
+        : id(id), expr(expr) {}
 
-    void accept(Visitor& visitor) const override;
+    void accept(Visitor& visitor) const ;
 };
 
-struct Break : SimpleStatment {
-    Token break_token;
+struct Break : SimpleStatement {
+    int line_number; // per tracciare la posizione nel codice
 
-    Break(Token break_token) : break_token(break_token) {}
+    Break(int line_number) : line_number(line_number) {}
 
-    void accept(Visitor& visitor) const override;
+    void accept(Visitor& visitor) const ;
 };
 
-struct Continue : SimpleStatment {
-    Token continue_token;
+struct Continue : SimpleStatement {
+    int line_number; // per tracciare la posizione nel codice
 
-    Continue(Token continue_token) : continue_token(continue_token) {}
+    Continue(int line_number) : line_number(line_number) {}
 
-    void accept(Visitor& visitor) const override;
+    void accept(Visitor& visitor) const ;
 };
 
-struct Print : SimpleStatment {
-    Token print_token;
-    Token LP;
-    Expression* value;
-    Token RP;
+struct Print : SimpleStatement {
+    Expression* expr;
 
-    Print(Token print_token, Token LP, Expression* value, Token RP)
-        : print_token(print_token), LP(LP), value(value), RP(RP) {}
+    Print(Expression* expr)
+        : expr(expr) {}
 
-    void accept(Visitor& visitor) const override;
+    void accept(Visitor& visitor) const ;
 };
 
-struct CompoundStatment : Statment {
+struct CompoundStatement : Statement {
     virtual void accept(Visitor& visitor) const = 0;
-    virtual ~CompoundStatment() = default;
+    virtual ~CompoundStatement() = default;
 };
 
 struct Block {
-    Token newline;
-    Token indent;
-    std::vector<Statment*> stmts;
-    Token dedent;
+    std::vector<Statement*> stmts;
 
-    Block(Token newline, Token indent, std::vector<Statment*> stmts, Token dedent)
-        : newline(newline), indent(indent), stmts(std::move(stmts)), dedent(dedent) {}
+    Block(std::vector<Statement*> stmts)
+        : stmts(std::move(stmts)) {}
+    void accept(Visitor& visitor) const;
 };
 
-struct WhileStatement : CompoundStatment {
-    Token while_token;
+struct WhileStatement : CompoundStatement {
     Expression* condition;
-    Token colon;
     Block* block;
 
-    WhileStatement(Token while_token, Expression* condition, Token colon, Block* block)
-        : while_token(while_token), condition(condition), colon(colon), block(block) {}
+    WhileStatement(Expression* condition, Block* block)
+        : condition(condition), block(block) {}
 
-    void accept(Visitor& visitor) const override;
+    void accept(Visitor& visitor) const ;
 };
 
 struct ElifBlock {
-    Token elif_token;
     Expression* condition;
-    Token colon;
     Block* block;
 
-    ElifBlock(Token elif_token, Expression* condition, Token colon, Block* block)
-        : elif_token(elif_token), condition(condition), colon(colon), block(block) {}
-    void accept(Visitor& visitor) const override;
+    ElifBlock(Expression* condition, Block* block)
+        : condition(condition), block(block) {}
+    void accept(Visitor& visitor) const ;
 };
 
 struct ElseBlock {
-    Token else_token;
-    Token colon;
     Block* block;
 
-    ElseBlock(Token else_token, Token colon, Block* block)
-        : else_token(else_token), colon(colon), block(block) {}
-    void accept(Visitor& visitor) const override;
+    ElseBlock(Block* block)
+        : block(block) {}
+
+    void accept(Visitor& visitor) const ;
 };
 
-struct IfStatement : CompoundStatment {
-    Token if_token;
+struct IfStatement : CompoundStatement {
     Expression* condition;
-    Token colon;
     Block* block;
     std::vector<ElifBlock*> elif_blocks;
     ElseBlock* else_block;
 
-    IfStatement(Token if_token, Expression* condition, Token colon, Block* block,
+    IfStatement(Expression* condition, Block* block,
         std::vector<ElifBlock*> elif_blocks = {}, ElseBlock* else_block = nullptr)
-        : if_token(if_token), condition(condition), colon(colon), block(block),
+        : condition(condition), block(block),
           elif_blocks(std::move(elif_blocks)), else_block(else_block) {}
 
-    void accept(Visitor& visitor) const override;
+    void accept(Visitor& visitor) const ;
 };
-
-struct ReturnStatement : SimpleStatment {
-    Token return_token;
-    Expression* value;
-
-    ReturnStatement(Token return_token, Expression* value)
-        : return_token(return_token), value(value) {}
-
-    void accept(Visitor& visitor) const override;
-};
-
 
 struct Join : Expression {
     Expression* left;
@@ -230,7 +198,7 @@ struct Join : Expression {
     Join(Expression* left, Token op, Expression* right)
         : left(left), op(op), right(right) {}
 
-    void accept(Visitor& visitor) const override;
+    void accept(Visitor& visitor) const ;
 };
 
 struct Equality : Expression {
@@ -241,7 +209,7 @@ struct Equality : Expression {
     Equality(Expression* left, Token op, Expression* right)
         : left(left), op(op), right(right) {}
 
-    void accept(Visitor& visitor) const override;
+    void accept(Visitor& visitor) const ;
 };
 
 struct Relation : Expression {
@@ -252,7 +220,7 @@ struct Relation : Expression {
     Relation(Expression* left, Token op, Expression* right)
         : left(left), op(op), right(right) {}
 
-    void accept(Visitor& visitor) const override;
+    void accept(Visitor& visitor) const ;
 };
 
 struct NumExpr : Expression {
@@ -263,7 +231,7 @@ struct NumExpr : Expression {
     NumExpr(Expression* left, Token op, Expression* right)
         : left(left), op(op), right(right) {}
 
-    void accept(Visitor& visitor) const override;
+    void accept(Visitor& visitor) const ;
 };
 
 struct Term : Expression {
@@ -274,7 +242,7 @@ struct Term : Expression {
     Term(Expression* left, Token op, Expression* right)
         : left(left), op(op), right(right) {}
 
-    void accept(Visitor& visitor) const override;
+    void accept(Visitor& visitor) const ;
 };
 
 struct Unary : Expression {
@@ -283,51 +251,40 @@ struct Unary : Expression {
 
     Unary(Token op, Expression* expr) : op(op), expr(expr) {}
 
-    void accept(Visitor& visitor) const override;
+    void accept(Visitor& visitor) const ;
+};
+
+//facor , literal, location
+
+struct Literal : Expression {
+    Token value; // se is_bool true rappresenta 1 True e 0 False se no e il numero
+    bool is_bool; 
+
+    Literal(Token value) : value(value), is_bool(false) {
+        if (value.tag == Token::TRUE_ || value.tag == Token::FALSE_) {
+            is_bool = true;
+        }
+    }
+
+    void accept(Visitor& visitor) const ;
 };
 
 struct Factor : Expression {
-    Token LP; 
-    Expression* expr;
-    Token RP; 
-    Token id; 
-    Token num; // numeric constant
-    Token boolean; // True or False
+    Literal token; // può essere un numero, True, False, o un'espressione
+    Expression* expr; // se è un'espressione tra parentesi
 
-    Factor(Token LP, Expression* expr, Token RP)
-        : LP(LP), expr(expr), RP(RP), id(), num(), boolean() {}
+    Factor(Literal token, Expression* expr) : token(token), expr(expr) {}
 
-    Factor(Token id) : LP(), expr(nullptr), RP(), id(id), num(), boolean() {}
-    Factor(Token num, bool isNum) : LP(), expr(nullptr), RP(), id(), num(num), boolean() {}
-    Factor(Token boolean, bool isBoolean) : LP(), expr(nullptr), RP(), id(), num(), boolean(boolean) {}
-
-    void accept(Visitor& visitor) const override;
+    void accept(Visitor& visitor) const ;
 };
 
-// non lo ho usato
 struct Location : Expression {
-    Token id; 
-    Token LB; 
-    Expression* index; 
-    Token RB; 
+    Token id; // identificatore
+    Expression* index; // può essere nullptr se non è un accesso a lista
 
-    Location(Token id, Token LB, Expression* index, Token RB)
-        : id(id), LB(LB), index(index), RB(RB) {}
+    Location(Token id, Expression* index = nullptr) : id(id), index(index) {}
 
-    Location(Token id) : id(id), LB(), index(nullptr), RB() {}
-
-    void accept(Visitor& visitor) const override;
+    void accept(Visitor& visitor) const ;
 };
-
-struct Literal {
-    Token value; // può essere un numero, True o False
-
-    Literal(Token value) : value(value) {}
-
-    void accept(Visitor& visitor) const {
-        visitor.visit(*this);
-    }
-};
-
 
 #endif

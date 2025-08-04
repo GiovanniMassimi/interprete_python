@@ -1,8 +1,15 @@
+//g++ -std=c++20 -Iinclude \
+  src/main.cpp src/Lexer.cpp src/Parser.cpp  src/Syntax.cpp \
+  -o parser_test
+
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include "Lexer.h"
+#include "Parser.h"
 #include "Token.h"
+#include "Syntax.h"
+#include "Exception.h"
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
@@ -12,7 +19,7 @@ int main(int argc, char* argv[]) {
 
     std::ifstream input(argv[1]);
     if (!input.is_open()) {
-        std::cerr << "Errore nell'apertura del file: " << argv[1] << "\n";
+        std::cerr << "Errore nell'aprire il file: " << argv[1] << "\n";
         return 1;
     }
 
@@ -20,14 +27,32 @@ int main(int argc, char* argv[]) {
     std::vector<Token> tokens;
 
     try {
-        lexer.tokenizeFile(input, tokens);  // o lexer.tokenize(input, tokens);
-        for (const Token& token : tokens) {
-            std::cout << token << "\n";  // richiede operator<< definito per Token
-        }
+        lexer.tokenizeFile(input, tokens);
+        std::cout << "Tokenizzazione completata con successo. Numero di token: " << tokens.size() << "\n";
     } catch (const std::exception& ex) {
-        std::cerr << "Errore durante la tokenizzazione: " << ex.what() << "\n";
+        std::cerr << "Errore nel lexer: " << ex.what() << "\n";
+        return 1;
+    }
+
+    try {
+        Parser parser;
+        Program* ast = parser.parse(tokens);
+
+        std::cout << "Parsing completato correttamente.\n";
+        
+        // Se hai un visitor o una funzione per stampare l'AST, lo puoi fare qui:
+        // ast->accept(visitor);
+
+        delete ast;
+    } catch (const ParseException& pex) {
+        std::cerr << "Errore di parsing: " << pex.what() << "\n";
+        return 1;
+    } catch (const std::exception& ex) {
+        std::cerr << "Errore generico: " << ex.what() << "\n";
         return 1;
     }
 
     return 0;
 }
+
+

@@ -9,6 +9,8 @@ Parole chiave: if, else, while, list, print, continue, break, True, False
 	•	Indentazioni: INDENT, DEDENT, NEWLINE, EOF
 */
 #include <string>
+#include <utility>
+#include <iostream>
 
 struct Token {
     static constexpr int LP     =  0; // (
@@ -72,12 +74,13 @@ struct Token {
     int tag;
     std::string word;  
     std::pair<int, int> pos;
-   
+
 };
 
-// Output stream overload per stampare token leggibili
+
 inline std::ostream& operator<<(std::ostream& os, const Token& t) {
-    os << "Token(" << Token::tag2string[t.tag] << ", \"" << t.word << "\", (" << t.pos.first << ", " << t.pos.second  << "))";
+    const char* tagName = (t.tag >= 0 && t.tag < 40) ? Token::tag2string[t.tag] : "UNKNOWN";
+    os << "Token(" << tagName << ", \"" << t.word << "\", (" << t.pos.first << ", " << t.pos.second << "))";
     return os;
 }
 

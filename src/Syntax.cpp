@@ -5,7 +5,7 @@ void Program::accept(Visitor& visitor) const {
     visitor.visit(*this);
 }
 
-void Statment::accept(Visitor& visitor) const {
+void Statement::accept(Visitor& visitor) const {
     visitor.visit(*this);
 }
 
@@ -49,10 +49,6 @@ void IfStatement::accept(Visitor& visitor) const {
     visitor.visit(*this);
 }
 
-void ReturnStatement::accept(Visitor& visitor) const {
-    visitor.visit(*this);
-}
-
 void Join::accept(Visitor& visitor) const {
     visitor.visit(*this);
 }
@@ -61,7 +57,7 @@ void Equality::accept(Visitor& visitor) const {
     visitor.visit(*this);
 }
 
-void Relational::accept(Visitor& visitor) const {
+void Relation::accept(Visitor& visitor) const {
     visitor.visit(*this);
 }
 

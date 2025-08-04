@@ -22,7 +22,7 @@ void Lexer::tokenizeFile(std::ifstream& input, std::vector<Token>& tokens) {
                 if (next == ' ') {
                     input.get();
                     spaces++;
-                    column++;
+                    
                 } else if (next == '\t') {
                     input.get();
                     spaces += 4; // tab = 4 spazi
@@ -30,7 +30,7 @@ void Lexer::tokenizeFile(std::ifstream& input, std::vector<Token>& tokens) {
                 } else if (next == '\n') {
                     // Riga vuota, aggiungi NEWLINE e continua
                     input.get();
-                    tokens.emplace_back(Token{Token::NEWLINE, Token::id2word[Token::NEWLINE], {line, column}});
+                    //tokens.emplace_back(Token{Token::NEWLINE, Token::id2word[Token::NEWLINE], {line, column}});
                     line++;
                     column = 0;
                     spaces = 0;
@@ -52,6 +52,7 @@ void Lexer::tokenizeFile(std::ifstream& input, std::vector<Token>& tokens) {
                     throw std::runtime_error("Error: Inconsistent indentation");
                 }
             }
+            
 
             ch = input.get();
             continue;
