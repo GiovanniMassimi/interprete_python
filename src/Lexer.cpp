@@ -49,7 +49,7 @@ void Lexer::tokenizeFile(std::ifstream& input, std::vector<Token>& tokens) {
                     tokens.emplace_back(Token{Token::DEDENT, Token::id2word[Token::DEDENT], {line, column}});
                 }
                 if (spaces != indentStack.back()) {
-                    throw std::runtime_error("Error: Inconsistent indentation");
+                    throw LexicalError("Error: Inconsistent indentation");
                 }
             }
             
@@ -96,10 +96,12 @@ void Lexer::tokenizeFile(std::ifstream& input, std::vector<Token>& tokens) {
                 tokens.emplace_back(Token{Token::DIV, Token::id2word[Token::DIV], {line, column}});
                 column++;
             }
-        } else if (ch == '%') {
+        }
+        /* else if (ch == '%') {
             tokens.emplace_back(Token{Token::MOD, Token::id2word[Token::MOD], {line, column}});
             column++;
-        }  else if (ch == ';') {
+        }  
+        */else if (ch == ';') {
             tokens.emplace_back(Token{Token::SEMCOL, Token::id2word[Token::SEMCOL], {line, column}});
             column++;
         } else if (ch == '.') {

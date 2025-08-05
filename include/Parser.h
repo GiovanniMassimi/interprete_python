@@ -39,7 +39,7 @@ public:
         auto end = tokens.end();
         Program* program = ParseProgram(itr, end);
         if (itr != end) {
-            throw ParseException("Errore di sintassi: token non elaborati alla fine del parsing.");
+            throw ParseError("Token at the end of parsing not processed: ");
         }
         return program;
     }
@@ -81,7 +81,7 @@ public:
             if (itr != end) {
                 ++itr;
             } else {
-                throw ParseException("Unexpected end of input.");
+                throw ParseError("Unexpected end of input.");
             }
         }
         // Helper function to generate error messages

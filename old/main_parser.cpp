@@ -52,7 +52,7 @@ int main(int argc, char* argv[]) {
         ast->accept(printer);
 
         delete ast;
-    } catch (const ParseException& pex) {
+    } catch (const ParseError& pex) {
         std::cerr << "Errore di parsing: " << pex.what() << "\n";
         return 1;
     } catch (const std::exception& ex) {

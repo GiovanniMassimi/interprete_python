@@ -4,6 +4,14 @@
 #include "Syntax.h" 
 #include "Exception.h"
 
+#define DEBUG_ON 0
+
+#if DEBUG_ON
+    #define DEBUG_TRACE(msg) std::cerr << "[TRACE] " << msg << std::endl
+#else
+    #define DEBUG_TRACE(msg) // niente, disabilitato
+#endif
+
 void EvaluationVisitor::visit(const Program& node) {
     for (const auto& stmt : node.stmts) {
         if (stmt) stmt->accept(*this);
@@ -24,7 +32,7 @@ void EvaluationVisitor::visit(const Assignment& node) {
     if (node.value) {
         node.value->accept(*this);
         symbolTable.setValue(node.id.word, result);
-        console_ << "[DEBUG] Assigning value to: " << node.id.word << " = " << result.toString() << std::endl;
+        DEBUG_TRACE("Assigning value to: " << node.id.word << " = " << result.toString());
 
     } else {
         throw EvaluationError("Assignment value is missing");
@@ -32,13 +40,37 @@ void EvaluationVisitor::visit(const Assignment& node) {
 }
 
 void EvaluationVisitor::visit(const ListAssignment& node) {
-    throw EvaluationError("ListAssignment evaluation not implemented yet");
+    // Valuta la posizione della lista
+    node.pos->accept(*this);
+    int index = result.asInt();
+
+    // Valuta il valore da assegnare
+    node.value->accept(*this);
+    Value valueToAssign = result;
+
+    // Ottieni la lista dalla symbol table
+    Value& listContainer = symbolTable.getValuemod(node.id.word); // uso getValuemod per avere una reference modificabile
+    auto& list = listContainer.asList();
+
+    // Controlla che l'indice sia valido
+    if (index < 0 || index >= static_cast<int>(list.size())) {
+        throw EvaluationError("Index out of bounds in ListAssignment to '" + node.id.word + "'");
+    }
+
+    // Assegna il nuovo valore
+    list[index] = valueToAssign;
+
+    DEBUG_TRACE("Assigned to list " << node.id.word << "[" << index << "] = " << valueToAssign.toString());
 }
 
 void EvaluationVisitor::visit(const ListCreation& node) {
-    console_ << "[DEBUG] Creating list " << node.id.word << std::endl;
+    DEBUG_TRACE("Creating list " << node.id.word);
     symbolTable.setValue(node.id.word, Value(std::vector<Value>{}));
-    symbolTable.dump(console_);
+    //stampa solo se DEBUG_ON
+    if (DEBUG_ON) {
+        console_ << "[DEBUG] Created list: " << node.id.word << std::endl;
+    }
+    
 }
 
 void EvaluationVisitor::visit(const Append& node) {
@@ -47,12 +79,14 @@ void EvaluationVisitor::visit(const Append& node) {
     auto& list = container.asList();
 
     node.expr->accept(*this);
-    console_ << "[DEBUG] About to append this evaluated expr: " << result.toString() << std::endl;
+    DEBUG_TRACE("About to append this evaluated expr: " << result.toString());
 
     list.push_back(result);
 
-    console_ << "[DEBUG] Appended to list " << node.id.word << ": " << result.toString() << std::endl;
-    symbolTable.dump(console_);
+    DEBUG_TRACE("Appended to list " << node.id.word << ": " << result.toString());
+    if (DEBUG_ON) {
+        symbolTable.dump(console_);
+    }
 }
 
 void EvaluationVisitor::visit(const Break& node) {
@@ -73,7 +107,7 @@ void EvaluationVisitor::visit(const Block& node) {
         stmt->accept(*this);
     }
 }
-
+//non so se funziona
 void EvaluationVisitor::visit(const WhileStatement& node) {
     try {
         node.condition->accept(*this);
@@ -81,13 +115,13 @@ void EvaluationVisitor::visit(const WhileStatement& node) {
             try {
                 node.block->accept(*this);
             } catch (const ContinueException&) {
-                // Salta all'inizio del ciclo
+                //non so come farlo
+                
             }
             node.condition->accept(*this);
         }
     } catch (const BreakException&) {
-        // Esci dal ciclo
-
+       //non so come farlo
     }
 }
 
@@ -144,18 +178,16 @@ void EvaluationVisitor::visit(const Equality& node) {
     node.right->accept(*this);
     Value rightVal = result;
 
-    console_ << "[DEBUG] Equality: " << leftVal.toString() 
-             << " == " << rightVal.toString() << std::endl;
-    std::cerr << "[DEBUG] Token EQ? Got tag: " << static_cast<int>(node.op.tag)
-          << " Expected EQ: " << static_cast<int>(Token::EQ) << "\n";
+    DEBUG_TRACE("Equality: " << leftVal.toString() 
+             << " == " << rightVal.toString());
     if (node.op.tag == Token::EQEQ) {
         bool resultBool = (leftVal == rightVal);
-        std::cerr << "[DEBUG] Risultato confronto bool grezzo: " << resultBool << "\n";
+        DEBUG_TRACE("Risultato confronto bool grezzo: " << resultBool);
         result = Value(leftVal == rightVal);
     } else {
         result = Value(!(leftVal == rightVal));
 
-    console_ << "[DEBUG] Equality result: " << result.toString() << std::endl;
+    DEBUG_TRACE("Equality result: " << result.toString());
     }
 }
 
@@ -202,8 +234,12 @@ void EvaluationVisitor::visit(const Term& node) {
             if (rhs == 0) throw EvaluationError("Division by zero");
             result = Value(lhs / rhs); 
             break;
+        case Token::DIV: // non ci dovrebbe essere pero boolexpr
+            if (rhs == 0) throw EvaluationError("Division by zero");
+            result = Value((lhs) / rhs);
+            break;
         default:
-            throw EvaluationError("Unknown term operator");
+            throw EvaluationError("Unknown term operator" + std::to_string(node.op.tag));
     }
 }
 
@@ -247,9 +283,7 @@ void EvaluationVisitor::visit(const Location& node) {
         node.index->accept(*this);
         int index = result.asInt();
         auto& list = container.asList();
-        console_ << "[DEBUG] Accessing list: " << node.id.word 
-                 << " at index: " << index 
-                 << ", list size: " << list.size() << std::endl;
+        DEBUG_TRACE("Accessing list: " << node.id.word  << " at index: " << index << ", list size: " << list.size());
         if (list.empty()) {
             throw EvaluationError("Attempted to access an empty list: '" + node.id.word + "'");
         }

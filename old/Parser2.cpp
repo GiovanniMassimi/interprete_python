@@ -74,7 +74,7 @@ Statement* Parser::ParseStatement(auto& itr, const auto& end) {
                 } else if (std::next(itr) != end && std::next(itr)->tag == Token::DOT) {
                     return ParseAppend(itr, end);
                 } else {
-                    throw ParseException("Errore di sintassi: atteso '=' o '[' dopo l'identificatore.");
+                    throw ParseError("Errore di sintassi: atteso '=' o '[' dopo l'identificatore.");
                 }
             }
             case Token::BREAK:
@@ -88,7 +88,7 @@ Statement* Parser::ParseStatement(auto& itr, const auto& end) {
             case Token::WHILE:
                 return ParseWhileStatement(itr, end);
             default:
-                throw ParseException("Errore di sintassi: istruzione non riconosciuta.");
+                throw ParseError("Errore di sintassi: istruzione non riconosciuta.");
         }
     }
 
@@ -96,13 +96,13 @@ Assignment* Parser::ParseAssignment(auto& itr, const auto& end) {
     Token id = *itr;
     Next(itr, end); // passo al token successivo
     if (itr->tag != Token::EQ) {
-        throw ParseException(GenError(itr, Token::EQ));
+        throw ParseError(GenError(itr, Token::EQ));
     }
     Token eq = *itr;
     Next(itr, end);
     Expression* value = ParseExpression(itr, end);
     if (value == nullptr) {
-        throw ParseException("Errore di sintassi: valore mancante dopo '='.");
+        throw ParseError("Errore di sintassi: valore mancante dopo '='.");
     }
     return new Assignment(id, eq, value);
 }
@@ -111,27 +111,27 @@ ListAssignment* Parser::ParseListAssignment(auto& itr, const auto& end) {
     Token id = *itr;
     Next(itr, end);
     if (itr->tag != Token::LB) {
-        throw ParseException(GenError(itr, Token::LB));
+        throw ParseError(GenError(itr, Token::LB));
     }
     Token LB = *itr;
     Next(itr, end);
     Expression* pos = ParseExpression(itr, end);
     if (pos == nullptr) {
-        throw ParseException("Errore di sintassi: espressione mancante tra '[' e ']'.");
+        throw ParseError("Errore di sintassi: espressione mancante tra '[' e ']'.");
     }
     if (itr->tag != Token::RB) {
-        throw ParseException(GenError(itr, Token::RB));
+        throw ParseError(GenError(itr, Token::RB));
     }
     Token RB = *itr;
     Next(itr, end);
     if (itr->tag != Token::EQ) {
-        throw ParseException(GenError(itr, Token::EQ));
+        throw ParseError(GenError(itr, Token::EQ));
     }
     Token eq = *itr;
     Next(itr, end);
     Expression* value = ParseExpression(itr, end);
     if (value == nullptr) {
-        throw ParseException("Errore di sintassi: valore mancante dopo '='.");
+        throw ParseError("Errore di sintassi: valore mancante dopo '='.");
     }
     return new ListAssignment(id, LB, pos, RB, eq, value);
 }
@@ -140,27 +140,27 @@ ListCreation* Parser::ParseListCreation(auto& itr, const auto& end) {
     Token id = *itr;
     Next(itr, end);
     if (itr->tag != <expr>→ <expr>or <join>| <join>Token::EQ) {
-        throw ParseException(GenError(itr, Token::EQ));
+        throw ParseError(GenError(itr, Token::EQ));
     }
     Token eq = *itr;
     Next(itr, end);
     if (itr->tag != Token::LIST) {
-        throw ParseException(GenError(itr, Token::LIST));
+        throw ParseError(GenError(itr, Token::LIST));
     }
     Token list_token = *itr;
     Next(itr, end);
     if (itr->tag != Token::LP) {
-        throw ParseException(GenError(itr, Token::LP));
+        throw ParseError(GenError(itr, Token::LP));
     }
     Token LP = *itr;
     Next(itr, end);
     if (itr->tag != Token::RP) {
-        throw ParseException(GenError(itr, Token::RP));
+        throw ParseError(GenError(itr, Token::RP));
     }
     Token RP = *itr;
     Next(itr, end);
     if (itr->tag != Token::NEWLINE) {
-        throw ParseException(GenError(itr, Token::NEWLINE));
+        throw ParseError(GenError(itr, Token::NEWLINE));
     }
    
     Next(itr, end);
@@ -172,31 +172,31 @@ Append* Parser::ParseAppend(auto& itr, const auto& end) {
     Token id = *itr;
     Next(itr, end);
     if (itr->tag != Token::DOT) {
-        throw ParseException(GenError(itr, Token::DOT));
+        throw ParseError(GenError(itr, Token::DOT));
     }
     Token dot = *itr;
     Next(itr, end);
     if (itr->tag != Token::APPEND) {
-        throw ParseException(GenError(itr, Token::APPEND));
+        throw ParseError(GenError(itr, Token::APPEND));
     }
     Token append_token = *itr;
     Next(itr, end);
     if (itr->tag != Token::LP) {
-        throw ParseException(GenError(itr, Token::LP));
+        throw ParseError(GenError(itr, Token::LP));
     }
     Token LP = *itr;
     Next(itr, end);
     Expression* value = ParseExpression(itr, end);
     if (value == nullptr) {
-        throw ParseException("Errore di sintassi: valore mancante dopo 'append('.");
+        throw ParseError("Errore di sintassi: valore mancante dopo 'append('.");
     }
     if (itr->tag != Token::RP) {
-        throw ParseException(GenError(itr, Token::RP));
+        throw ParseError(GenError(itr, Token::RP));
     }
     Token RP = *itr;
     Next(itr, end);
     if (itr->tag != Token::NEWLINE) {
-        throw ParseException(GenError(itr, Token::NEWLINE));
+        throw ParseError(GenError(itr, Token::NEWLINE));
     }
     
     Next(itr, end);
@@ -208,7 +208,7 @@ Break* Parser::ParseBreak(auto& itr, const auto& end) {
     Token break_token = *itr;
     Next(itr, end);
     if (itr->tag != Token::NEWLINE) {
-        throw ParseException(GenError(itr, Token::NEWLINE));
+        throw ParseError(GenError(itr, Token::NEWLINE));
     }
     
     Next(itr, end);
@@ -220,7 +220,7 @@ Continue* Parser::ParseContinue(auto& itr, const auto& end) {
     Token continue_token = *itr;
     Next(itr, end);
     if (itr->tag != Token::NEWLINE) {
-        throw ParseException(GenError(itr, Token::NEWLINE));
+        throw ParseError(GenError(itr, Token::NEWLINE));
     }
     
     Next(itr, end);
@@ -231,16 +231,16 @@ Print* Parser::ParsePrint(auto& itr, const auto& end) {
     Token print_token = *itr;
     Next(itr, end);
     if (itr->tag != Token::LP) {
-        throw ParseException(GenError(itr, Token::LP));
+        throw ParseError(GenError(itr, Token::LP));
     }
     Token LP = *itr;
     Next(itr, end);
     Expression* value = ParseExpression(itr, end);
     if (value == nullptr) {
-        throw ParseException("Errore di sintassi: valore mancante dopo 'print('.");
+        throw ParseError("Errore di sintassi: valore mancante dopo 'print('.");
     }
     if (itr->tag != Token::RP) {
-        throw ParseException(GenError(itr, Token::RP));
+        throw ParseError(GenError(itr, Token::RP));
     }
     Token RP = *itr;
     Next(itr, end);
@@ -317,7 +317,9 @@ Expression* Parser::ParseNumExpr(auto& itr) {
 Expression* Parser::ParseTerm(auto& itr) {
     // parsing di termini
     Expression* left = ParseUnary(itr);
-    while (itr != end && (itr->tag == Token::MUL || itr->tag == Token::DIV || itr->tag == Token::DIVINT || itr->tag == Token::MOD)) {
+    //while (itr != end && (itr->tag == Token::MUL || itr->tag == Token::DIV || itr->tag == Token::DIVINT || itr->tag == Token::MOD)) {
+
+    while (itr != end && (itr->tag == Token::MUL || itr->tag == Token::DIV || itr->tag == Token::DIVINT)) {
         Token op = *itr;
         Next(itr,end);
         Expression* right = ParseUnary(itr);
@@ -341,14 +343,14 @@ Expression* Parser::ParseUnary(auto& itr) {
 Expression* Parser::ParseFactor(auto& itr) {
     // parsing di fattori
     if (itr == end) {
-        throw ParseException("Errore di sintassi: fattore mancante.");
+        throw ParseError("Errore di sintassi: fattore mancante.");
     }
 
     if (itr->tag == Token::LP) {
         Token LP = *itr;
         Next(itr,end);
         Expression* expr = ParseExpression(itr);
-        if (itr->tag != Token::RP) throw ParseException(GenError(itr, Token::RP));
+        if (itr->tag != Token::RP) throw ParseError(GenError(itr, Token::RP));
         Token RP = *itr;
         Next(itr,end);
         return new Factor(LP, expr, RP);
@@ -376,7 +378,7 @@ Expression* Parser::ParseFactor(auto& itr) {
         return new Literal(false_token);
     }
 
-    throw ParseException("Errore di sintassi: fattore non valido.");
+    throw ParseError("Errore di sintassi: fattore non valido.");
 }
 
 IfStatement* Parser::ParseIfStatement(auto& itr) {
@@ -384,7 +386,7 @@ IfStatement* Parser::ParseIfStatement(auto& itr) {
     Token if_token = *itr;
     Next(itr,end);
     Expression* condition = ParseExpression(itr);
-    if (itr->tag != Token::COLON) throw ParseException(GenError(itr, Token::COLON));
+    if (itr->tag != Token::COLON) throw ParseError(GenError(itr, Token::COLON));
     Token colon = *itr;
     Next(itr,end);
     Block* block = ParseBlock(itr);
@@ -406,7 +408,7 @@ ElifBlock* Parser::ParseElifBlock(auto& itr) {
     Token elif_token = *itr;
     Next(itr,end);
     Expression* condition = ParseExpression(itr);
-    if (itr->tag != Token::COLON) throw ParseException(GenError(itr, Token::COLON));
+    if (itr->tag != Token::COLON) throw ParseError(GenError(itr, Token::COLON));
     Token colon = *itr;
     Next(itr,end);
     Block* block = ParseBlock(itr);
@@ -416,7 +418,7 @@ ElifBlock* Parser::ParseElifBlock(auto& itr) {
 ElseBlock* Parser::ParseElseBlock(auto& itr) {
     Token else_token = *itr;
     Next(itr,end);
-    if (itr->tag != Token::COLON) throw ParseException(GenError(itr, Token::COLON));
+    if (itr->tag != Token::COLON) throw ParseError(GenError(itr, Token::COLON));
     Token colon = *itr;
     Next(itr,end);
     Block* block = ParseBlock(itr);
@@ -428,7 +430,7 @@ WhileStatement* Parser::ParseWhileStatement(auto& itr) {
     Token while_token = *itr;
     Next(itr,end);
     Expression* condition = ParseExpression(itr);
-    if (itr->tag != Token::COLON) throw ParseException(GenError(itr, Token::COLON));
+    if (itr->tag != Token::COLON) throw ParseError(GenError(itr, Token::COLON));
     Token colon = *itr;
     Next(itr,end);
     Block* block = ParseBlock(itr);
@@ -438,10 +440,10 @@ WhileStatement* Parser::ParseWhileStatement(auto& itr) {
 
 Block* Parser::ParseBlock(auto& itr) {
     // parsing di blocchi
-    if (itr->tag != Token::NEWLINE) throw ParseException(GenError(itr, Token::NEWLINE));
+    if (itr->tag != Token::NEWLINE) throw ParseError(GenError(itr, Token::NEWLINE));
     Token newline = *itr;
     Next(itr,end);
-    if (itr->tag != Token::INDENT) throw ParseException(GenError(itr, Token::INDENT));
+    if (itr->tag != Token::INDENT) throw ParseError(GenError(itr, Token::INDENT));
     Token indent = *itr;
     Next(itr,end);
 
@@ -453,7 +455,7 @@ Block* Parser::ParseBlock(auto& itr) {
         }
     }
 
-    if (itr->tag != Token::DEDENT) throw ParseException(GenError(itr, Token::DEDENT));
+    if (itr->tag != Token::DEDENT) throw ParseError(GenError(itr, Token::DEDENT));
     Token dedent = *itr;
     Next(itr,end);
 

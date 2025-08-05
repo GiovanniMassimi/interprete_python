@@ -19,15 +19,17 @@ g++ -std=c++20 -Iinclude \
 #include "PrintVisitor.h"
 #include "EvaluationVisitor.h"
 
+#define DEBUG_ON 0
+
 int main(int argc, char* argv[]) {
     if (argc < 2) {
-        std::cerr << "Uso: " << argv[0] << " <file.txt>\n";
+        std::cerr << "Using: " << argv[0] << " <file.txt>\n";
         return 1;
     }
 
     std::ifstream input(argv[1]);
     if (!input.is_open()) {
-        std::cerr << "Errore nell'aprire il file: " << argv[1] << "\n";
+        std::cerr << "Error opening file: " << argv[1] << "\n";
         return 1;
     }
 
@@ -36,37 +38,44 @@ int main(int argc, char* argv[]) {
 
     try {
         lexer.tokenizeFile(input, tokens);
-        std::cout << "Tokenizzazione completata con successo. Numero di token: " << tokens.size() << "\n";
-    } catch (const std::exception& ex) {
+        std::cout << "Tokenizing completed successfully. Number of tokens: " << tokens.size() << "\n";
+    } catch (const LexicalError& ex) {
         std::cerr << "Errore nel lexer: " << ex.what() << "\n";
+        return 1;
+    } catch (const std::exception& ex) {
+        std::cerr << "Generic error in lexer: " << ex.what() << "\n";
         return 1;
     }
 
     try {
         Parser parser;
         Program* ast = parser.parse(tokens);
-
-        std::cout << "Parsing completato correttamente.\n";
-
+    
+            std::cout << "Parsing completed successfully.\n";
+        
         // --- AST Debug (opzionale)
-        PrintVisitor printer(std::cout);
-        ast->accept(printer);
+        if (DEBUG_ON) {
+            std::cout << "\n--- AST ---\n";
+            PrintVisitor printer(std::cout);
+            ast->accept(printer);
+        }
+        
 
         // --- Valutazione
-        std::cout << "\n--- Esecuzione del programma ---\n";
+        std::cout << "\n--- Program Execution ---\n";
         SymbolTable table;
         EvaluationVisitor evaluator(table, std::cout);
         ast->accept(evaluator);
 
         delete ast;
-    } catch (const ParseException& pex) {
-        std::cerr << "Errore di parsing: " << pex.what() << "\n";
+    } catch (const ParseError& pex) {
+        std::cerr << "Parsing Error: " << pex.what() << "\n";
         return 1;
     } catch (const EvaluationError& eex) {
-        std::cerr << "Errore durante l'evaluation: " << eex.what() << "\n";
+        std::cerr << "Evaluation Error: " << eex.what() << "\n";
         return 1;
     } catch (const std::exception& ex) {
-        std::cerr << "Errore generico: " << ex.what() << "\n";
+        std::cerr << "Generic Error: " << ex.what() << "\n";
         return 1;
     }
 

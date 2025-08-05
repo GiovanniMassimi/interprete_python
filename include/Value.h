@@ -33,12 +33,12 @@ public:
 
     // altri metodi (asInt, asBool, operator==, ecc.)
     int asInt() const {
-        if (type_ != Type::INT) throw std::runtime_error("Value is not an int");
+        if (type_ != Type::INT) throw EvaluationError("Value is not an int");
         return int_val_;
     }
 
     bool asBool() const {
-        if (type_ != Type::BOOL) throw std::runtime_error("Value is not a bool");
+        if (type_ != Type::BOOL) throw EvaluationError("Value is not a bool");
         return bool_val_;
     }
 
@@ -67,8 +67,6 @@ public:
 
     bool operator==(const Value& other) const {
     if (type_ != other.type_) {
-        std::cerr << "[DEBUG] Comparison of different types: "
-                  << static_cast<int>(type_) << " vs " << static_cast<int>(other.type_) << "\n";
         return false;
     }
 
