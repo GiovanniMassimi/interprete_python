@@ -41,11 +41,23 @@ void Print::accept(Visitor& visitor) const {
     visitor.visit(*this);
 }
 
+void Block::accept(Visitor& visitor) const {
+    visitor.visit(*this);
+}
+
 void WhileStatement::accept(Visitor& visitor) const {
     visitor.visit(*this);
 }
 
 void IfStatement::accept(Visitor& visitor) const {
+    visitor.visit(*this);
+}
+
+void ElifBlock::accept(Visitor& visitor) const {
+    visitor.visit(*this);
+}
+
+void ElseBlock::accept(Visitor& visitor) const {
     visitor.visit(*this);
 }
 
@@ -77,7 +89,6 @@ void Factor::accept(Visitor& visitor) const {
     visitor.visit(*this);
 }
 
-//non lo uso
 void Location::accept(Visitor& visitor) const {
     visitor.visit(*this);
 }
