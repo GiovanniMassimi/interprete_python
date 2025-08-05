@@ -1,23 +1,21 @@
-/*
-g++ -std=c++20 -Iinclude \
-    src/main.cpp src/Lexer.cpp src/Parser.cpp src/Syntax.cpp src/EvaluationVisitor.cpp \
-    -o parser_test
+//g++ -std=c++20 -Iinclude \
+  src/main.cpp src/Lexer.cpp src/Parser.cpp  src/Syntax.cpp \
+  -o parser_test
 
-./parser_test PASS_SumVec.txt
-*/
-
+//g++ -std=c++20 -Iinclude \
+  src/main.cpp src/Lexer.cpp src/Parser.cpp src/Syntax.cpp \
+  -o parser_test
+// ./parser_test PASS_SumVec.txt
 
 #include <iostream>
 #include <fstream>
 #include <vector>
-
 #include "Lexer.h"
 #include "Parser.h"
 #include "Token.h"
 #include "Syntax.h"
 #include "Exception.h"
 #include "PrintVisitor.h"
-#include "EvaluationVisitor.h"
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
@@ -43,27 +41,19 @@ int main(int argc, char* argv[]) {
     }
 
     try {
+        
         Parser parser;
         Program* ast = parser.parse(tokens);
 
         std::cout << "Parsing completato correttamente.\n";
 
-        // --- AST Debug (opzionale)
+        // Stampa l’AST
         PrintVisitor printer(std::cout);
         ast->accept(printer);
-
-        // --- Valutazione
-        std::cout << "\n--- Esecuzione del programma ---\n";
-        SymbolTable table;
-        EvaluationVisitor evaluator(table, std::cout);
-        ast->accept(evaluator);
 
         delete ast;
     } catch (const ParseException& pex) {
         std::cerr << "Errore di parsing: " << pex.what() << "\n";
-        return 1;
-    } catch (const EvaluationError& eex) {
-        std::cerr << "Errore durante l'evaluation: " << eex.what() << "\n";
         return 1;
     } catch (const std::exception& ex) {
         std::cerr << "Errore generico: " << ex.what() << "\n";
@@ -72,3 +62,5 @@ int main(int argc, char* argv[]) {
 
     return 0;
 }
+
+

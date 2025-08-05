@@ -27,4 +27,14 @@ struct ParseException : std::runtime_error {
 	ParseException(std::string msg) : std::runtime_error(msg.c_str()) {}
 };
 
+class BreakException : public std::exception {
+public:
+    const char* what() const noexcept override { return "Break statement encountered"; }
+};
+
+class ContinueException : public std::exception {
+public:
+    const char* what() const noexcept override { return "Continue statement encountered"; }
+};
+
 #endif
