@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+//idea da un video youtube
+
 class Value {
 public:
     enum class Type { INT, BOOL, LIST, NONE };
@@ -31,7 +33,6 @@ public:
         return list_val_;
     }
 
-    // altri metodi (asInt, asBool, operator==, ecc.)
     int asInt() const {
         if (type_ != Type::INT) throw EvaluationError("Value is not an int");
         return int_val_;
@@ -82,21 +83,21 @@ public:
         default:
             throw std::runtime_error("Unexpected Value type in operator==");
     }
-}
-
-bool operator<(const Value& other) const {
-    if (type_ != other.type_)
-        throw std::runtime_error("Cannot compare different types");
-
-        switch (type_) {
-            case Type::INT:
-                return int_val_ < other.int_val_;
-            case Type::BOOL:
-                return bool_val_ < other.bool_val_;
-            default:
-                throw std::runtime_error("Cannot compare this type");
-        }
     }
+
+    bool operator<(const Value& other) const {
+        if (type_ != other.type_)
+            throw std::runtime_error("Cannot compare different types");
+
+            switch (type_) {
+                case Type::INT:
+                    return int_val_ < other.int_val_;
+                case Type::BOOL:
+                    return bool_val_ < other.bool_val_;
+                default:
+                    throw std::runtime_error("Cannot compare this type");
+            }
+        }
 
     bool operator>(const Value& other) const {
         if (type_ != other.type_)
@@ -111,8 +112,6 @@ bool operator<(const Value& other) const {
                 throw std::runtime_error("Cannot compare this type");
         }
     }
-
-    
 
     bool operator<=(const Value& other) const {
         return *this < other || *this == other;

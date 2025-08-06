@@ -30,9 +30,9 @@ public:
     //costructur e destructor
     Parser() = default;
     ~Parser() = default;
-    //no copy constructor or assignment operator
     Parser(const Parser&) = delete;
     Parser& operator=(const Parser&) = delete;
+    
     //funzione di parsing principale
     Program* parse(const std::vector<Token>& tokens) {
         auto itr = tokens.begin();
@@ -88,7 +88,7 @@ public:
 
 
             std::stringstream err;
-            err << "Expected token '" << Token::id2word[tag] << "' at line " << itr->pos.first << ", column " << itr->pos.second << std::endl
+            err << "Expected token '" << Token::id2word[tag] << "' at line " << itr->pos.first << ", column " << itr->pos.second
                 << "Found token '" << Token::id2word[itr->tag] << "'";
                 
             return err.str();

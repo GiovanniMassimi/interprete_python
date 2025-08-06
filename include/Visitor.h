@@ -5,6 +5,8 @@
 
 class Visitor {
     public:
+
+
         virtual void visit(const Program& program) = 0;
         virtual void visit(const Statement& statement) = 0;
         virtual void visit(const Expression& expression) = 0;
@@ -30,10 +32,10 @@ class Visitor {
         virtual void visit(const Term& term) = 0;
         virtual void visit(const Unary& unary) = 0;
         virtual void visit(const Factor& factor) = 0;
-        virtual void visit(const Location& location) = 0; 
+        virtual void visit(const Location& location) = 0;
         virtual void visit(const Literal& literal) = 0;
 
-       virtual ~Visitor() = default;
+        virtual ~Visitor() = default;
 
 };
 

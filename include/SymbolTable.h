@@ -18,8 +18,8 @@ public:
 	SymbolTable(const SymbolTable& other) = delete;
 	SymbolTable& operator=(const SymbolTable& other) = delete;
 
-    // Aggiungi questa overload per ottenere riferimento modificabile
-    Value& getValuemod(std::string const& key) {
+    //riferimento modificabile per append
+    Value& getValueMod(std::string const& key) {
     auto itr = map.find(key);
     if (itr == map.end()) {
         std::stringstream temp;
@@ -43,16 +43,16 @@ public:
 		map[key] = value;
 	}
 
-    void dump(std::ostream& out) const {
+    void PrintSymbols(std::ostream& out) const {
         out << "---- Symbol Table ----" << std::endl;
         for (const auto& [key, val] : map) {
             out << key << " = " << val.toString() << std::endl;
         }
         out << "----------------------" << std::endl;
-}
+    }
 
-private:
-	std::unordered_map<std::string, Value> map;
+    private:
+        std::unordered_map<std::string, Value> map;
 
 };
 

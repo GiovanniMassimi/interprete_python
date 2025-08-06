@@ -9,7 +9,7 @@
 #if DEBUG_ON
     #define DEBUG_TRACE(msg) std::cerr << "[TRACE] " << msg << std::endl
 #else
-    #define DEBUG_TRACE(msg) 
+    #define DEBUG_TRACE(msg) // niente, disabilitato
 #endif
 
 void EvaluationVisitor::visit(const Program& node) {
@@ -19,13 +19,13 @@ void EvaluationVisitor::visit(const Program& node) {
 }
 
 void EvaluationVisitor::visit(const Statement& node) {
-   //Should remove visit from virtual class
-
+   //dovrei togliere accept da statement
+    
 }
 
 void EvaluationVisitor::visit(const Expression& node) {
-    //Should remove visit from virtual class
-
+    //dovrei togliere accept da expression
+    
 }
 
 void EvaluationVisitor::visit(const Assignment& node) {
@@ -40,19 +40,24 @@ void EvaluationVisitor::visit(const Assignment& node) {
 }
 
 void EvaluationVisitor::visit(const ListAssignment& node) {
+    // Valuta la posizione della lista
     node.pos->accept(*this);
     int index = result.asInt();
 
+    // Valuta il valore da assegnare
     node.value->accept(*this);
     Value valueToAssign = result;
 
-    Value& listContainer = symbolTable.getValueMod(node.id.word); // Using getValueMod for not const list
+    // Ottieni la lista dalla symbol table
+    Value& listContainer = symbolTable.getValueMod(node.id.word); // uso getValueMod per avere una reference modificabile
     auto& list = listContainer.asList();
 
+    // Controlla che l'indice sia valido
     if (index < 0 || index >= static_cast<int>(list.size())) {
         throw EvaluationError("Index out of bounds in ListAssignment to '" + node.id.word + "'");
     }
 
+    // Assegna il nuovo valore
     list[index] = valueToAssign;
 
     DEBUG_TRACE("Assigned to list " << node.id.word << "[" << index << "] = " << valueToAssign.toString());
@@ -61,6 +66,7 @@ void EvaluationVisitor::visit(const ListAssignment& node) {
 void EvaluationVisitor::visit(const ListCreation& node) {
     DEBUG_TRACE("Creating list " << node.id.word);
     symbolTable.setValue(node.id.word, Value(std::vector<Value>{}));
+    //stampa solo se DEBUG_ON
     if (DEBUG_ON) {
         console_ << "[DEBUG] Created list: " << node.id.word << std::endl;
     }
@@ -68,6 +74,7 @@ void EvaluationVisitor::visit(const ListCreation& node) {
 }
 
 void EvaluationVisitor::visit(const Append& node) {
+    // Ottieni riferimento modificabile
     Value& container = symbolTable.getValueMod(node.id.word);
     auto& list = container.asList();
 
@@ -100,19 +107,26 @@ void EvaluationVisitor::visit(const Block& node) {
         stmt->accept(*this);
     }
 }
+//non so se funziona
 void EvaluationVisitor::visit(const WhileStatement& node) {
     try {
         node.condition->accept(*this);
         while (result.asBool()) {
             try {
                 node.block->accept(*this);
-            } catch (const ContinueException&) {}
+            } catch (const ContinueException&) {
+                //non so come farlo
+                
+            }
             node.condition->accept(*this);
         }
-    } catch (const BreakException&) {}
+    } catch (const BreakException&) {
+       //non so come farlo
+    }
 }
 
 void EvaluationVisitor::visit(const IfStatement& node) {
+    
     node.condition->accept(*this);
     if (result.asBool()) {
         node.block->accept(*this);
@@ -148,7 +162,7 @@ void EvaluationVisitor::visit(const Join& node) {
         }
         node.right->accept(*this);
         result = Value(result.asBool());
-    } else {
+    } else { // AND
         if (!leftVal) {
             result = Value(false);
             return;
@@ -166,7 +180,6 @@ void EvaluationVisitor::visit(const Equality& node) {
 
     DEBUG_TRACE("Equality: " << leftVal.toString() 
              << " == " << rightVal.toString());
-
     if (node.op.tag == Token::EQEQ) {
         bool resultBool = (leftVal == rightVal);
         DEBUG_TRACE("Risultato confronto bool grezzo: " << resultBool);
@@ -221,7 +234,7 @@ void EvaluationVisitor::visit(const Term& node) {
             if (rhs == 0) throw EvaluationError("Division by zero");
             result = Value(lhs / rhs); 
             break;
-        case Token::DIV: // non ci dovrebbe essere pero boolexpr.txt
+        case Token::DIV: // non ci dovrebbe essere pero boolexpr
             if (rhs == 0) throw EvaluationError("Division by zero");
             result = Value((lhs) / rhs);
             break;
@@ -241,13 +254,16 @@ void EvaluationVisitor::visit(const Unary& node) {
     }
 }
 
+
 void EvaluationVisitor::visit(const Factor& node) {
     if (node.expr) {
-        node.expr->accept(*this); 
+        node.expr->accept(*this); // caso: ( <expr> )
     } else {
-        node.token.accept(*this); 
+        node.token.accept(*this); // caso: literal vero e proprio
     }
 }
+
+
 
 void EvaluationVisitor::visit(const Literal& node) {
     if (node.value.tag == Token::NUM) {

@@ -8,9 +8,8 @@
 #if DEBUG_ON
     #define DEBUG_TRACE(msg) std::cerr << "[TRACE] " << msg << std::endl
 #else
-    #define DEBUG_TRACE(msg) 
+    #define DEBUG_TRACE(msg) // niente, disabilitato
 #endif
-
 Program* Parser::ParseProgram(std::vector<Token>::const_iterator& itr, const std::vector<Token>::const_iterator& end) {
     Program* program = new Program();
     DEBUG_TRACE("ParseProgram");
@@ -28,6 +27,7 @@ Program* Parser::ParseProgram(std::vector<Token>::const_iterator& itr, const std
     return program;
 }
 
+//parse location
 Location* Parser::ParseLocation(std::vector<Token>::const_iterator& itr, const std::vector<Token>::const_iterator& end) {
     if (itr == end || itr->tag != Token::ID) {
         throw ParseError("Errore di sintassi: atteso identificatore.");
@@ -38,23 +38,24 @@ Location* Parser::ParseLocation(std::vector<Token>::const_iterator& itr, const s
     Next(itr, end); 
 
     if (itr != end && itr->tag == Token::LB) {
-        
-        Next(itr,end);
+        // caso: id [ expr ]
+        Next(itr,end); // salta '['
         Expression* index = ParseExpression(itr, end);
         DEBUG_TRACE("Dopo ParseExpression, token attuale: (loc) " << *itr);
         if (itr == end || itr->tag != Token::RB) {
             throw ParseError(GenError(itr, Token::RB));
         }
-        Next(itr,end);
+        Next(itr,end); // salta ']'
         return new Location(id, index);
     }
 
+    // caso: solo id
     return new Location(id, nullptr);
 }
-
 //////////////////////////////////////////
 //          Statement Parsing           //
 //////////////////////////////////////////
+
 
 Statement* Parser::ParseStatement(std::vector<Token>::const_iterator& itr, const std::vector<Token>::const_iterator& end) {
     if (itr == end) {
@@ -75,6 +76,7 @@ Statement* Parser::ParseStatement(std::vector<Token>::const_iterator& itr, const
                        std::next(std::next(itr))->tag == Token::APPEND) {
                 return ParseAppend(itr, end);
             } else {
+                //maybe
                 throw ParseError("Invalid statement after identifier: " + itr->word + " at line " + std::to_string(itr->pos.first) + ", column " + std::to_string(itr->pos.second));
             }
         }
@@ -91,7 +93,7 @@ Statement* Parser::ParseStatement(std::vector<Token>::const_iterator& itr, const
         default:
             throw ParseError("Invalid statement token: " + itr->word);
     }
-    return nullptr; 
+    return nullptr; // No valid statement found
 }
 
 Assignment* Parser::Parser::ParseAssignment(std::vector<Token>::const_iterator& itr, const std::vector<Token>::const_iterator& end) {
@@ -145,6 +147,7 @@ ListAssignment* Parser::ParseListAssignment(std::vector<Token>::const_iterator& 
     if (value == nullptr) {
         throw ParseError("Syntax error: missing value after '='.");
     }
+    //Next(itr, end);  //ricordatelo
     if (itr->tag != Token::NEWLINE) {
         throw ParseError(GenError(itr, Token::NEWLINE));
     }
@@ -175,7 +178,9 @@ ListCreation* Parser::ParseListCreation(std::vector<Token>::const_iterator& itr,
     if (itr->tag != Token::NEWLINE) {
         throw ParseError(GenError(itr, Token::NEWLINE));
     }
+    
     Next(itr, end);
+
     return new ListCreation(id);
 }
 
@@ -207,7 +212,9 @@ Append* Parser::ParseAppend(std::vector<Token>::const_iterator& itr, const std::
     if (itr->tag != Token::NEWLINE) {
         throw ParseError(GenError(itr, Token::NEWLINE));
     }
+    
     Next(itr, end);
+
     return new Append(id, value);
 }
 
@@ -218,7 +225,9 @@ Break* Parser::ParseBreak(std::vector<Token>::const_iterator& itr, const std::ve
     if (itr->tag != Token::NEWLINE) {
         throw ParseError(GenError(itr, Token::NEWLINE));
     }
+    
     Next(itr, end);
+
     return new Break(line);
 }
 
@@ -229,7 +238,9 @@ Continue* Parser::ParseContinue(std::vector<Token>::const_iterator& itr, const s
     if (itr->tag != Token::NEWLINE) {
         throw ParseError(GenError(itr, Token::NEWLINE));
     }
+    
     Next(itr, end);
+
     return new Continue(line);
 }
 
@@ -248,11 +259,14 @@ Print* Parser::ParsePrint(std::vector<Token>::const_iterator& itr, const std::ve
     if (itr->tag != Token::RP) {
         throw ParseError(GenError(itr, Token::RP));
     }
+    
     Next(itr, end);
     if (itr->tag != Token::NEWLINE) {
         throw ParseError(GenError(itr, Token::NEWLINE));
     }
+    
     Next(itr, end);
+
     return new Print(expr);
 }
 
@@ -263,9 +277,9 @@ Print* Parser::ParsePrint(std::vector<Token>::const_iterator& itr, const std::ve
 Expression* Parser::ParseExpression(std::vector<Token>::const_iterator& itr, const std::vector<Token>::const_iterator& end) {
     DEBUG_TRACE("ParseExpression: " << *itr);
     Expression* left = ParseJoin(itr, end);
-
     while (itr != end && itr->tag == Token::OR) {
         Token op = *itr;
+
         Next(itr,end);
         Expression* right = ParseJoin(itr, end);
         left = new Join(left, op, right);
@@ -274,9 +288,9 @@ Expression* Parser::ParseExpression(std::vector<Token>::const_iterator& itr, con
 }
 
 Expression* Parser::ParseJoin(std::vector<Token>::const_iterator& itr, const std::vector<Token>::const_iterator& end) {
-    DEBUG_TRACE("ParseJoin: " << *itr);
+    //DEBUG_TRACE("ParseJoin: " << *itr);
     Expression* left = ParseEquality(itr, end);
-
+    
     while (itr != end && itr->tag == Token::AND) {
         Token op = *itr;
         Next(itr,end);
@@ -287,7 +301,7 @@ Expression* Parser::ParseJoin(std::vector<Token>::const_iterator& itr, const std
 }
 
 Expression* Parser::ParseEquality(std::vector<Token>::const_iterator& itr, const std::vector<Token>::const_iterator& end) {
-    DEBUG_TRACE("ParseEquality: " << *itr);
+    //DEBUG_TRACE("ParseEquality: " << *itr);
     Expression* left = ParseRelation(itr, end);
     
     while (itr != end && (itr->tag == Token::EQEQ || itr->tag == Token::NOTEQ)) {
@@ -300,7 +314,7 @@ Expression* Parser::ParseEquality(std::vector<Token>::const_iterator& itr, const
 }
 
 Expression* Parser::ParseRelation(std::vector<Token>::const_iterator& itr, const std::vector<Token>::const_iterator& end) {
-    DEBUG_TRACE("ParseRelation: " << *itr);
+    //DEBUG_TRACE("ParseRelation: " << *itr);
     Expression* left = ParseNumExpr(itr, end);
     
     while (itr != end && (itr->tag == Token::LT || itr->tag == Token::LE || itr->tag == Token::GE || itr->tag == Token::GT)) {
@@ -313,7 +327,7 @@ Expression* Parser::ParseRelation(std::vector<Token>::const_iterator& itr, const
 }
 
 Expression* Parser::ParseNumExpr(std::vector<Token>::const_iterator& itr, const std::vector<Token>::const_iterator& end) {
-    DEBUG_TRACE("ParseNumExpr: " << *itr);
+    //DEBUG_TRACE("ParseNumExpr: " << *itr);
     Expression* left = ParseTerm(itr, end);
     
     while (itr != end && (itr->tag == Token::ADD || itr->tag == Token::SUB)) {
@@ -326,7 +340,7 @@ Expression* Parser::ParseNumExpr(std::vector<Token>::const_iterator& itr, const 
 }
 
 Expression* Parser::ParseTerm(std::vector<Token>::const_iterator& itr, const std::vector<Token>::const_iterator& end) {
-    DEBUG_TRACE("ParseTerm: " << *itr);
+    //DEBUG_TRACE("ParseTerm: " << *itr);
     Expression* left = ParseUnary(itr, end);
     
     //while (itr != end && (itr->tag == Token::MUL || itr->tag == Token::DIV || itr->tag == Token::DIVINT || itr->tag == Token::MOD)) {
@@ -341,7 +355,7 @@ Expression* Parser::ParseTerm(std::vector<Token>::const_iterator& itr, const std
 }
 
 Expression* Parser::ParseUnary(std::vector<Token>::const_iterator& itr, const std::vector<Token>::const_iterator& end) {
-    DEBUG_TRACE("ParseUnary: " << *itr);
+    //DEBUG_TRACE("ParseUnary: " << *itr);
     if (itr != end && (itr->tag == Token::NOT || itr->tag == Token::SUB)) {
         Token op = *itr;
         Next(itr, end);
@@ -363,9 +377,12 @@ Expression* Parser::ParseFactor(std::vector<Token>::const_iterator& itr, const s
         if (itr == end || itr->tag != Token::RP) {
             throw ParseError(GenError(itr, Token::RP));
         }
-        Next(itr,end); 
+        Next(itr,end); // salta ')'
         DEBUG_TRACE("ParseFactor pos: " << *itr);
+        // parentesi → usa Factor con expr, token non significativo
         Literal placeholder(Token(Token::LP, "(", {0, 0}));
+
+        //forse bisogna controllare new line |||||||||||||||||||||||||||||||||||||||||||||||||||||
         return new Factor(placeholder, expr);
     }
 
@@ -377,8 +394,10 @@ Expression* Parser::ParseFactor(std::vector<Token>::const_iterator& itr, const s
 
     if (itr->tag == Token::NUM || itr->tag == Token::TRUE_ || itr->tag == Token::FALSE_) {
         Literal lit(*itr);
+        
         Next(itr, end);
-        return new Factor(lit, nullptr); 
+        
+        return new Factor(lit, nullptr); // solo literal, nessuna expr
     }
 
     throw ParseError(" Invalid factor, current token: '" + itr->word + "' at line " + std::to_string(itr->pos.first) + ", column " + std::to_string(itr->pos.second));
@@ -397,11 +416,11 @@ Block* Parser::ParseBlock(std::vector<Token>::const_iterator& itr, const std::ve
     if (itr->tag != Token::NEWLINE) {
         throw ParseError(GenError(itr, Token::NEWLINE));
     }
-    Next(itr, end); 
+    Next(itr, end); // salta NEWLINE
     if (itr->tag != Token::INDENT) {
         throw ParseError(GenError(itr, Token::INDENT));
     }
-    Next(itr, end); 
+    Next(itr, end); // salta INDENT
     std::vector<Statement*> stmts;
     while (itr != end && itr->tag != Token::DEDENT) {
         Statement* stmt = ParseStatement(itr, end);
@@ -412,7 +431,8 @@ Block* Parser::ParseBlock(std::vector<Token>::const_iterator& itr, const std::ve
     if (itr == end || itr->tag != Token::DEDENT) {
         throw ParseError(GenError(itr, Token::DEDENT));
     }
-    Next(itr, end); 
+    Next(itr, end); // salta DEDENT 
+
     return new Block(stmts);
 }
 
@@ -453,6 +473,7 @@ IfStatement* Parser::ParseIfStatement(std::vector<Token>::const_iterator& itr, c
     if (itr != end && itr->tag == Token::ELSE) {
         else_block = ParseElseBlock(itr, end);
     }
+
     return new IfStatement(condition, block, elif_blocks, else_block);
 }
 
@@ -466,5 +487,6 @@ WhileStatement* Parser::ParseWhileStatement(std::vector<Token>::const_iterator& 
     if (itr->tag != Token::COLON) throw ParseError(GenError(itr, Token::COLON));
     Next(itr, end);
     Block* block = ParseBlock(itr, end);
+
     return new WhileStatement(condition, block);
 }

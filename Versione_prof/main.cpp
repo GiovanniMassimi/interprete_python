@@ -5,6 +5,8 @@ g++ -std=c++20 -Iinclude \
 
 ./parser_test PASS_SumVec.txt
 */
+
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -51,7 +53,7 @@ int main(int argc, char* argv[]) {
 
         if (DEBUG_ON) std::cout << "Parsing completed successfully.\n";
 
-        // --- AST Debug 
+        // --- AST Debug (opzionale)
         if (DEBUG_ON) {
             std::cout << "\n--- AST ---\n";
             PrintVisitor printer(std::cout);

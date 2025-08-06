@@ -15,7 +15,7 @@ public:
     EvaluationVisitor(SymbolTable& table, std::ostream& con)
         : symbolTable{table}, console_{con}, result{0} {}
 
-    Value result; // Risultato dell’ultima valutazione
+    Value result; 
 
     // Dichiarazioni dei visit
     void visit(const Program& node) override;
@@ -45,4 +45,4 @@ public:
     void visit(const Location& node) override;
 };
 
-#endif // EVALUATION_VISITOR_H
+#endif 

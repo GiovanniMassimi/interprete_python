@@ -1,13 +1,6 @@
 #if !defined(TOKEN_H)
 #define TOKEN_H
 
-/*
-Parole chiave: if, else, while, list, print, continue, break, True, False
-	•	Operatori e simboli: +, -, *, //, ==, !=, <, <=, >, >=, =, ., :, (, ), [, ]
-	•	Identificatori: come x, myVar, counter (regex: [a-zA-Z][a-zA-Z0-9]*)
-	•	Numeri interi: tipo 1, 42, 1000 (regex: [1-9][0-9]*)
-	•	Indentazioni: INDENT, DEDENT, NEWLINE, EOF
-*/
 #include <string>
 #include <utility>
 #include <iostream>
@@ -19,7 +12,7 @@ struct Token {
     static constexpr int ADD    =  3; // +
     static constexpr int SUB    =  4; // -
     static constexpr int MUL    =  5; // *
-    static constexpr int DIV    =  6; // / non serve ma non voglio spostare gli indici
+    static constexpr int DIV    =  6; // / don't need it but I dont want to move index
     static constexpr int DIVINT =  7; // //
     static constexpr int MOD    =  8; // %
     static constexpr int PRINT  =  9;
@@ -30,7 +23,7 @@ struct Token {
     static constexpr int SEMCOL = 14; // ;
     static constexpr int DOT    = 15; // .
     static constexpr int COLON  = 16; // :
-    static constexpr int ID     = 17; // Identificatori
+    static constexpr int ID     = 17; // Identificators
     static constexpr int TRUE_  = 18;
     static constexpr int FALSE_ = 19;
     static constexpr int IF     = 20;

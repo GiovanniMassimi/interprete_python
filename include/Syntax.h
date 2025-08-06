@@ -1,44 +1,6 @@
 #if !defined(SYNTAX_H)
 #define SYNTAX_H
 
-
-
-/*
-<program>→ <stmts>endmarker
-<stmts>→ <stmt><stmts>| ϵ
-<stmt>→ <compound_stmt>| <simple_stmt>
-
-<simple_stmt>→ <loc>= <expr>newline
-            | <id>= list() newline
-            | <id>. append ( <expr>) newline
-            | break newline
-            | continue newline
-            | print ( <expr>) newline
-
-<compound_stmt>→ <if_stmt>| <while_stmt>
-    <if_stmt>→ if <expr>: <block>
-        | if <expr>: <block><elif_block>
-        | if <expr>: <block><else_block>
-    <elif_block>→ elif <expr>: <block>
-        | elif <expr>: <block><elif_block>
-        | elif <expr>: <block><else_block>
-    <else_block>→ else : <block>
-    <while_stmt>→ while <expr>: <block>
-<block>→ newline indent <stmts>dedent
-
-<expr>→ <expr>or <join>| <join>
-<join>→ <join>and <equality>| <equality>
-<equality>→ <equality>== <rel>| <equality>!= <rel>| <rel>
-<rel>→ <numexpr>< <numexpr>| <numexpr><= <numexpr>
-        | <numexpr>>= <numexpr>| <numexpr>> <numexpr>| <numexpr>
-<numexpr>→ <numexpr>+ <term>| <numexpr>- <term>| <term>
-<term>→ <term>* <unary>| <term>// <unary>| <unary>
-<unary>→ not <unary>|- <unary>| <factor>
-<factor>→ ( <expr>) | <loc>| num | True | False
-<loc>→ id | id [ <expr>]
-
-*/
-
 #include <string>
 #include <vector>
 #include "Token.h"
@@ -111,7 +73,7 @@ struct Append : SimpleStatement {
 };
 
 struct Break : SimpleStatement {
-    int line_number; // per tracciare la posizione nel codice
+    int line_number; 
 
     Break(int line_number) : line_number(line_number) {}
 
@@ -119,7 +81,7 @@ struct Break : SimpleStatement {
 };
 
 struct Continue : SimpleStatement {
-    int line_number; // per tracciare la posizione nel codice
+    int line_number;
 
     Continue(int line_number) : line_number(line_number) {}
 
@@ -145,6 +107,7 @@ struct Block {
 
     Block(std::vector<Statement*> stmts)
         : stmts(std::move(stmts)) {}
+
     void accept(Visitor& visitor) const;
 };
 
@@ -164,6 +127,7 @@ struct ElifBlock {
 
     ElifBlock(Expression* condition, Block* block)
         : condition(condition), block(block) {}
+
     void accept(Visitor& visitor) const ;
 };
 
@@ -192,7 +156,7 @@ struct IfStatement : CompoundStatement {
 
 struct Join : Expression {
     Expression* left;
-    Token op; // 'or' or 'and'
+    Token op; 
     Expression* right;
 
     Join(Expression* left, Token op, Expression* right)
@@ -203,7 +167,7 @@ struct Join : Expression {
 
 struct Equality : Expression {
     Expression* left;
-    Token op; // '==', '!='
+    Token op; 
     Expression* right;
 
     Equality(Expression* left, Token op, Expression* right)
@@ -214,7 +178,7 @@ struct Equality : Expression {
 
 struct Relation : Expression {
     Expression* left;
-    Token op; // '<', '<=', '>=', '>'
+    Token op; 
     Expression* right;
 
     Relation(Expression* left, Token op, Expression* right)
@@ -225,7 +189,7 @@ struct Relation : Expression {
 
 struct NumExpr : Expression {
     Expression* left;
-    Token op; // '+', '-'
+    Token op; 
     Expression* right;
 
     NumExpr(Expression* left, Token op, Expression* right)
@@ -236,7 +200,7 @@ struct NumExpr : Expression {
 
 struct Term : Expression {
     Expression* left;
-    Token op; // '*', '//'
+    Token op; 
     Expression* right;
 
     Term(Expression* left, Token op, Expression* right)
@@ -246,7 +210,7 @@ struct Term : Expression {
 };
 
 struct Unary : Expression {
-    Token op; // 'not', '-'
+    Token op; 
     Expression* expr;
 
     Unary(Token op, Expression* expr) : op(op), expr(expr) {}
@@ -254,7 +218,6 @@ struct Unary : Expression {
     void accept(Visitor& visitor) const ;
 };
 
-//facor , literal, location
 
 struct Literal : Expression {
     Token value; // se is_bool true rappresenta 1 True e 0 False se no e il numero
@@ -279,8 +242,8 @@ struct Factor : Expression {
 };
 
 struct Location : Expression {
-    Token id; // identificatore
-    Expression* index; // può essere nullptr se non è un accesso a lista
+    Token id;
+    Expression* index; // può essere nullptr se non è un'accesso a lista
 
     Location(Token id, Expression* index = nullptr) : id(id), index(index) {}
 

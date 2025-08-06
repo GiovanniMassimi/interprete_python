@@ -20,7 +20,6 @@ class PrintVisitor : public Visitor {
         printIndent();
         console_ << "Program:\n";
         indent++;
-        //std::vector<Statement*> stmts;
         for (const auto stmt : node.stmts) {
             if (stmt) stmt->accept(*this);
         }
@@ -202,25 +201,19 @@ class PrintVisitor : public Visitor {
     console_ << "Factor:\n";
     indent++;
 
-    // Caso 1: expr presente → stampa ricorsiva
     if (node.expr) {
         node.expr->accept(*this);
-    }
-    // Caso 2: token non "vuoto" (e.g., Literal presente)
-    else if (node.token.value.tag == Token::NUM || node.token.value.tag == Token::TRUE_ || node.token.value.tag == Token::FALSE_) {  // o un altro check sensato
+    } else if (node.token.value.tag == Token::NUM || node.token.value.tag == Token::TRUE_ || node.token.value.tag == Token::FALSE_) {
         indent++;
         printIndent();
         console_ << "Literal: " << node.token.value.word << "\n";
         indent--;
-    }
-    // Caso 3: errore di parsing o factor incompleto
-    else {
+    } else {
         printIndent();
         console_ << "[!] Factor vuoto o malformato\n";
     }
-
     indent--;
-}
+    }
 
     void visit(const Literal& node) override {
         printIndent();
@@ -241,9 +234,6 @@ class PrintVisitor : public Visitor {
             console_ << "\n";
         }
     }
-
-
-
 
     private:
     std::ostream& console_;
