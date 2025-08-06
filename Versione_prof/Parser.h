@@ -9,6 +9,21 @@
 #include "Exception.h"
 
 
+/*
+
+
+<expr>→ <expr>or <join>| <join>
+<join>→ <join>and <equality>| <equality>
+<equality>→ <equality>== <rel>| <equality>!= <rel>| <rel>
+<rel>→ <numexpr>< <numexpr>| <numexpr><= <numexpr>
+        | <numexpr>>= <numexpr>| <numexpr>> <numexpr>| <numexpr>
+<numexpr>→ <numexpr>+ <term>| <numexpr>- <term>| <term>
+<term>→ <term>* <unary>| <term>// <unary>| <unary>
+<unary>→ not <unary>|- <unary>| <factor>
+<factor>→ ( <expr>) | <loc>| num | True | False
+<loc>→ id | id [ <expr>]
+*/
+
 class Parser {
 
 public:

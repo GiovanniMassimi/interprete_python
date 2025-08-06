@@ -1,0 +1,445 @@
+@startuml Interpreter UML Diagram
+
+' Classes
+
+class Token {
+  +tag: int
+  +word: std::string
+  +pos: std::pair<int, int>
+  +static id2word: const char*[]
+  +static tag2string: const char*[]
+  +Token(int, std::string, std::pair<int, int>)
+  +~Token()
+  +operator=(Token&): Token&
+}
+
+class Value {
+  +enum Type { INT, BOOL, LIST, NONE }
+  -type_: Type
+  -int_val_: int
+  -bool_val_: bool
+  -list_val_: std::vector<Value>
+  +Value()
+  +Value(int)
+  +Value(bool)
+  +Value(std::vector<Value>)
+  +type(): Type
+  +asList(): std::vector<Value>&
+  +asList(): const std::vector<Value>&
+  +asInt(): int
+  +asBool(): bool
+  +toString(): std::string
+  +operator==(Value&): bool
+  +operator<(Value&): bool
+  +operator>(Value&): bool
+  +operator<=(Value&): bool
+  +operator>=(Value&): bool
+}
+
+class SymbolTable {
+  -map: std::unordered_map<std::string, Value>
+  +SymbolTable()
+  +~SymbolTable()
+  +getValueMod(std::string): Value&
+  +getValue(std::string): Value
+  +setValue(std::string, Value)
+  +PrintSymbols(std::ostream&)
+}
+
+abstract class Visitor {
+  +visit(Program)
+  +visit(Statement)
+  +visit(Expression)
+  +visit(Assignment)
+  +visit(ListAssignment)
+  +visit(ListCreation)
+  +visit(Append)
+  +visit(Break)
+  +visit(Continue)
+  +visit(Print)
+  +visit(Block)
+  +visit(WhileStatement)
+  +visit(IfStatement)
+  +visit(ElifBlock)
+  +visit(ElseBlock)
+  +visit(Join)
+  +visit(Equality)
+  +visit(Relation)
+  +visit(NumExpr)
+  +visit(Term)
+  +visit(Unary)
+  +visit(Factor)
+  +visit(Literal)
+  +visit(Location)
+  +~Visitor()
+}
+
+class EvaluationVisitor {
+  -symbolTable: SymbolTable&
+  -console_: std::ostream&
+  -result: Value
+  +EvaluationVisitor(SymbolTable&, std::ostream&)
+  +visit(Program)
+  +visit(Statement)
+  +visit(Expression)
+  +visit(Assignment)
+  +visit(ListAssignment)
+  +visit(ListCreation)
+  +visit(Append)
+  +visit(Break)
+  +visit(Continue)
+  +visit(Print)
+  +visit(Block)
+  +visit(WhileStatement)
+  +visit(IfStatement)
+  +visit(ElifBlock)
+  +visit(ElseBlock)
+  +visit(Join)
+  +visit(Equality)
+  +visit(Relation)
+  +visit(NumExpr)
+  +visit(Term)
+  +visit(Unary)
+  +visit(Factor)
+  +visit(Literal)
+  +visit(Location)
+}
+
+class PrintVisitor {
+  -console_: std::ostream&
+  -indent: int
+  +PrintVisitor(std::ostream&)
+  +printIndent()
+  +visit(Program)
+  +visit(Statement)
+  ++visit(Expression)
+  +visit(Assignment)
+  +visit(ListAssignment)
+  +visit(ListCreation)
+  +visit(Append)
+  +visit(Break)
+  +visit(Continue)
+  +visit(Print)
+  +visit(Block)
+  +visit(WhileStatement)
+  +visit(IfStatement)
+  +visit(ElifBlock)
+  +visit(ElseBlock)
+  +visit(Join)
+  +visit(Equality)
+  +visit(Relation)
+  +visit(NumExpr)
+  +visit(Term)
+  +visit(Unary)
+  +visit(Factor)
+  +visit(Literal)
+  +visit(Location)
+}
+
+class Lexer {
+  +Lexer()
+  +~Lexer()
+  +tokenizeFile(std::ifstream&, std::vector<Token>&)
+}
+
+class Parser {
+  +Parser()
+  +~Parser()
+  +parse(std::vector<Token>&): Program*
+  -ParseProgram(std::vector<Token>::const_iterator&, std::vector<Token>::const_iterator&): Program*
+  -ParseStatement(std::vector<Token>::const_iterator&, std::vector<Token>::const_iterator&): Statement*
+  -ParseExpression(std::vector<Token>::const_iterator&, std::vector<Token>::const_iterator&): Expression*
+  -ParseAssignment(std::vector<Token>::const_iterator&, std::vector<Token>::const_iterator&): Assignment*
+  -ParseListAssignment(std::vector<Token>::const_iterator&, std::vector<Token>::const_iterator&): ListAssignment*
+  -ParseListCreation(std::vector<Token>::const_iterator&, std::vector<Token>::const_iterator&): ListCreation*
+  -ParseAppend(std::vector<Token>::const_iterator&, std::vector<Token>::const_iterator&): Append*
+  -ParseBreak(std::vector<Token>::const_iterator&, std::vector<Token>::const_iterator&): Break*
+  -ParseContinue(std::vector<Token>::const_iterator&, std::vector<Token>::const_iterator&): Continue*
+  -ParsePrint(std::vector<Token>::const_iterator&, std::vector<Token>::const_iterator&): Print*
+  -ParseBlock(std::vector<Token>::const_iterator&, std::vector<Token>::const_iterator&): Block*
+  -ParseElifBlock(std::vector<Token>::const_iterator&, std::vector<Token>::const_iterator&): ElifBlock*
+  -ParseElseBlock(std::vector<Token>::const_iterator&, std::vector<Token>::const_iterator&): ElseBlock*
+  -ParseIfStatement(std::vector<Token>::const_iterator&, std::vector<Token>::const_iterator&): IfStatement*
+  -ParseWhileStatement(std::vector<Token>::const_iterator&, std::vector<Token>::const_iterator&): WhileStatement*
+  -ParseJoin(std::vector<Token>::const_iterator&, std::vector<Token>::const_iterator&): Expression*
+  -ParseEquality(std::vector<Token>::const_iterator&, std::vector<Token>::const_iterator&): Expression*
+  -ParseRelation(std::vector<Token>::const_iterator&, std::vector<Token>::const_iterator&): Expression*
+  -ParseNumExpr(std::vector<Token>::const_iterator&, std::vector<Token>::const_iterator&): Expression*
+  -ParseTerm(std::vector<Token>::const_iterator&, std::vector<Token>::const_iterator&): Expression*
+  -ParseUnary(std::vector<Token>::const_iterator&, std::vector<Token>::const_iterator&): Expression*
+  -ParseFactor(std::vector<Token>::const_iterator&, std::vector<Token>::const_iterator&): Expression*
+  -ParseLocation(std::vector<Token>::const_iterator&, std::vector<Token>::const_iterator&): Location*
+  -Next(std::vector<Token>::const_iterator&, std::vector<Token>::const_iterator&)
+  -GenError(std::vector<Token>::const_iterator&, int): std::string
+}
+
+abstract class Statement {
+  +accept(Visitor&)
+}
+
+class Program {
+  +stmts: std::vector<Statement*>
+  +Program()
+  +~Program()
+  +accept(Visitor&)
+}
+
+abstract class Expression {
+  +accept(Visitor&)
+}
+
+abstract class SimpleStatement {
+  +accept(Visitor&)
+}
+
+abstract class CompoundStatement {
+  +accept(Visitor&)
+}
+
+class Assignment {
+  +id: Token
+  +value: Expression*
+  +Assignment(Token, Expression*)
+  +accept(Visitor&)
+}
+
+class ListAssignment {
+  +id: Token
+  +pos: Expression*
+  +value: Expression*
+  +ListAssignment(Token, Expression*, Expression*)
+  +accept(Visitor&)
+}
+
+class ListCreation {
+  +id: Token
+  +ListCreation(Token)
+  +accept(Visitor&)
+}
+
+class Append {
+  +id: Token
+  +expr: Expression*
+  +Append(Token, Expression*)
+  +accept(Visitor&)
+}
+
+class Break {
+  +line_number: int
+  +Break(int)
+  +accept(Visitor&)
+}
+
+class Continue {
+  +line_number: int
+  +Continue(int)
+  +accept(Visitor&)
+}
+
+class Print {
+  +expr: Expression*
+  +Print(Expression*)
+  +accept(Visitor&)
+}
+
+class Block {
+  +stmts: std::vector<Statement*>
+  +Block(std::vector<Statement*>)
+  +accept(Visitor&)
+}
+
+class WhileStatement {
+  +condition: Expression*
+  +block: Block*
+  +WhileStatement(Expression*, Block*)
+  +accept(Visitor&)
+}
+
+class ElifBlock {
+  +condition: Expression*
+  +block: Block*
+  +ElifBlock(Expression*, Block*)
+  +accept(Visitor&)
+}
+
+class ElseBlock {
+  +block: Block*
+  +ElseBlock(Block*)
+  +accept(Visitor&)
+}
+
+class IfStatement {
+  +condition: Expression*
+  +block: Block*
+  +elif_blocks: std::vector<ElifBlock*>
+  +else_block: ElseBlock*
+  +IfStatement(Expression*, Block*, std::vector<ElifBlock*>, ElseBlock*)
+  +accept(Visitor&)
+}
+
+class Join {
+  +left: Expression*
+  +op: Token
+  +right: Expression*
+  +Join(Expression*, Token, Expression*)
+  +accept(Visitor&)
+}
+
+class Equality {
+  +left: Expression*
+  +op: Token
+  +right: Expression*
+  +Equality(Expression*, Token, Expression*)
+  +accept(Visitor&)
+}
+
+class Relation {
+  +left: Expression*
+  +op: Token
+  +right: Expression*
+  +Relation(Expression*, Token, Expression*)
+  +accept(Visitor&)
+}
+
+class NumExpr {
+  +left: Expression*
+  +op: Token
+  +right: Expression*
+  +NumExpr(Expression*, Token, Expression*)
+  +accept(Visitor&)
+}
+
+class Term {
+  +left: Expression*
+  +op: Token
+  +right: Expression*
+  +Term(Expression*, Token, Expression*)
+  +accept(Visitor&)
+}
+
+class Unary {
+  +op: Token
+  +expr: Expression*
+  +Unary(Token, Expression*)
+  +accept(Visitor&)
+}
+
+class Factor {
+  +token: Literal
+  +expr: Expression*
+  +Factor(Literal, Expression*)
+  +accept(Visitor&)
+}
+
+class Literal {
+  +value: Token
+  +is_bool: bool
+  +Literal(Token)
+  +accept(Visitor&)
+}
+
+class Location {
+  +id: Token
+  +index: Expression*
+  +Location(Token, Expression*)
+  +accept(Visitor&)
+}
+
+' Relationships
+
+' Inheritance
+Visitor <|.. EvaluationVisitor
+Visitor <|.. PrintVisitor
+Statement <|.. Expression
+Statement <|.. SimpleStatement
+Statement <|.. CompoundStatement
+SimpleStatement <|.. Assignment
+SimpleStatement <|.. ListAssignment
+SimpleStatement <|.. ListCreation
+SimpleStatement <|.. Append
+SimpleStatement <|.. Break
+SimpleStatement <|.. Continue
+SimpleStatement <|.. Print
+CompoundStatement <|.. WhileStatement
+CompoundStatement <|.. IfStatement
+Expression <|.. Join
+Expression <|.. Equality
+Expression <|.. Relation
+Expression <|.. NumExpr
+Expression <|.. Term
+Expression <|.. Unary
+Expression <|.. Factor
+Expression <|.. Literal
+Expression <|.. Location
+
+' Composition
+Program o--> "1..*" Statement
+Block o--> "1..*" Statement
+IfStatement o--> "1" Expression : condition
+IfStatement o--> "1" Block
+IfStatement o--> "0..*" ElifBlock
+IfStatement o--> "0..1" ElseBlock
+WhileStatement o--> "1" Expression : condition
+WhileStatement o--> "1" Block
+ElifBlock o--> "1" Expression : condition
+ElifBlock o--> "1" Block
+ElseBlock o--> "1" Block
+Assignment o--> "1" Expression : value
+ListAssignment o--> "1" Expression : pos
+ListAssignment o--> "1" Expression : value
+Append o--> "1" Expression : expr
+Print o--> "1" Expression : expr
+Join o--> "1" Expression : left
+Join o--> "1" Expression : right
+Equality o--> "1" Expression : left
+Equality o--> "1" Expression : right
+Relation o--> "1" Expression : left
+Relation o--> "1" Expression : right
+NumExpr o--> "1" Expression : left
+NumExpr o--> "1" Expression : right
+Term o--> "1" Expression : left
+Term o--> "1" Expression : right
+Unary o--> "1" Expression : expr
+Factor o--> "1" Expression : expr
+Factor o--> "1" Literal : token
+Location o--> "0..1" Expression : index
+
+' Association
+EvaluationVisitor --> SymbolTable
+EvaluationVisitor --> Value : result
+PrintVisitor --> "1" std::ostream : console_
+EvaluationVisitor --> "1" std::ostream : console_
+SymbolTable --> Value : stores
+Lexer --> Token : produces
+Parser --> Token : consumes
+Parser --> Program : produces
+
+' Dependencies
+Visitor ..> Program
+Visitor ..> Statement
+Visitor ..> Expression
+Visitor ..> Assignment
+Visitor ..> ListAssignment
+Visitor ..> ListCreation
+Visitor ..> Append
+Visitor ..> Break
+Visitor ..> Continue
+Visitor ..> Print
+Visitor ..> Block
+Visitor ..> WhileStatement
+Visitor ..> IfStatement
+Visitor ..> ElifBlock
+Visitor ..> ElseBlock
+Visitor ..> Join
+Visitor ..> Equality
+Visitor ..> Relation
+Visitor ..> NumExpr
+Visitor ..> Term
+Visitor ..> Unary
+Visitor ..> Factor
+Visitor ..> Literal
+Visitor ..> Location
+
+hide empty members
+
+@enduml

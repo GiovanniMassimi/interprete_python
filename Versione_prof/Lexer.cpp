@@ -22,7 +22,6 @@ void Lexer::tokenizeFile(std::ifstream& input, std::vector<Token>& tokens) {
             line++;
             column = 0;
 
-            // Calcola l'indentazione della riga successiva
             int spaces = 0;
             while (true) {
                 char next = input.peek();
@@ -34,8 +33,7 @@ void Lexer::tokenizeFile(std::ifstream& input, std::vector<Token>& tokens) {
                     input.get();
                     spaces += 4; // tab = 4 spazi
                     column += 4;
-                } else if (next == '\n' || next == '\r') {
-                    // Riga vuota, aggiungi NEWLINE e continua
+                } else if (next == '\n' || next == '\r') {//consume empty rows
                     input.get();
                     //tokens.emplace_back(Token{Token::NEWLINE, Token::id2word[Token::NEWLINE], {line, column}});
                     line++;
@@ -46,7 +44,6 @@ void Lexer::tokenizeFile(std::ifstream& input, std::vector<Token>& tokens) {
                 }
             }
             
-            // Gestione dell'indentazione
             if (spaces > indentStack.back()) {
                 indentStack.push_back(spaces);
                 tokens.emplace_back(Token{Token::INDENT, Token::id2word[Token::INDENT], {line, column}});
@@ -66,21 +63,20 @@ void Lexer::tokenizeFile(std::ifstream& input, std::vector<Token>& tokens) {
         }
 
         if (ch == ' ' || ch == '\t') {
-            // Spazi non significativi (es. nel mezzo di un'espressione)
             column += (ch == ' ') ? 1 : 4;
             ch = input.get();
             continue;
-        } else if (ch == '(') { //simboli 
+        } else if (ch == '(') { //Symbols
             tokens.emplace_back(Token{Token::LP, Token::id2word[Token::LP], {line, column}});
             column++;
         } else if (ch == ')') {
             tokens.emplace_back(Token{Token::RP, Token::id2word[Token::RP], {line, column}});
             column++;
         } else if (ch == '=') {
-            if (input.peek() == '=') { //leggo il prossimo carattere per verificare se è un ==
+            if (input.peek() == '=') { // ==
                 input.get();
                 tokens.emplace_back(Token{Token::EQEQ, Token::id2word[Token::EQEQ], {line, column}});
-                column += 2; // Incremento di 2 per il carattere '=' aggiuntivo
+                column += 2; 
             } else {
                 tokens.emplace_back(Token{Token::EQ, Token::id2word[Token::EQ], {line, column}});
                 column++;
@@ -95,20 +91,18 @@ void Lexer::tokenizeFile(std::ifstream& input, std::vector<Token>& tokens) {
             tokens.emplace_back(Token{Token::MUL, Token::id2word[Token::MUL], {line, column}});
             column++;
         } else if (ch == '/') {
-            if (input.peek() == '/') { // verifico div intera
+            if (input.peek() == '/') { // //
                 input.get();
                 tokens.emplace_back(Token{Token::DIVINT, Token::id2word[Token::DIVINT], {line, column}});
-                column += 2; // Incremento di 2 per il carattere '/' aggiuntivo
+                column += 2;
             } else {
                 tokens.emplace_back(Token{Token::DIV, Token::id2word[Token::DIV], {line, column}});
                 column++;
             }
-        }
-        /* else if (ch == '%') {
+        }/* else if (ch == '%') {
             tokens.emplace_back(Token{Token::MOD, Token::id2word[Token::MOD], {line, column}});
             column++;
-        }  
-        */else if (ch == ';') {
+        }*/else if (ch == ';') {
             tokens.emplace_back(Token{Token::SEMCOL, Token::id2word[Token::SEMCOL], {line, column}});
             column++;
         } else if (ch == '.') {
@@ -124,34 +118,34 @@ void Lexer::tokenizeFile(std::ifstream& input, std::vector<Token>& tokens) {
             tokens.emplace_back(Token{Token::RB, Token::id2word[Token::RB], {line, column}});
             column++;
         } else if (ch == '<') {
-            if (input.peek() == '=') { // verifico <=
+            if (input.peek() == '=') { //  <=
                 input.get();
                 tokens.emplace_back(Token{Token::LE, Token::id2word[Token::LE], {line, column}});
-                column += 2; // Incremento di 2 per il carattere '=' aggiuntivo
+                column += 2; 
             } else {
                 tokens.emplace_back(Token{Token::LT, Token::id2word[Token::LT], {line, column}});
                 column++;
             }
         } else if (ch == '>') {
-            if (input.peek() == '=') { // verifico >=
+            if (input.peek() == '=') { //  >=
                 input.get();
                 tokens.emplace_back(Token{Token::GE, Token::id2word[Token::GE], {line, column}});
-                column += 2; // Incremento di 2 per il carattere '=' aggiuntivo
+                column += 2; 
             } else {
                 tokens.emplace_back(Token{Token::GT, Token::id2word[Token::GT], {line, column}});
                 column++;
             }
         } else if (ch == '!') {
-            if (input.peek() == '=') { // verifico !=
+            if (input.peek() == '=') { // !=
                 input.get();
                 tokens.emplace_back(Token{Token::NOTEQ, Token::id2word[Token::NOTEQ], {line, column}});
-                column += 2; // Incremento di 2 per il carattere '=' aggiuntivo
+                column += 2;
             } else {
                 std::stringstream err;
                 err << "Error: Unrecognized character '!' at line " << line << ", column " << column << ", character '" << ch << "'";
                 throw LexicalError{err.str()};
             }
-        }else if (std::isalpha(ch)) { // identificatori e parole chiave
+        }else if (std::isalpha(ch)) { // ID or Keywords
             std::string temp;
             temp += ch;
             while (std::isalnum(input.peek())) {

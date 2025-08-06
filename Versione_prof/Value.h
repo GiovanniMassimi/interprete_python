@@ -127,4 +127,4 @@ inline std::ostream& operator<<(std::ostream& os, const Value& val) {
     os << val.toString();
     return os;
 }
-#endif 
+#endif // VALUE_H
