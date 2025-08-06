@@ -3,7 +3,7 @@
 #include "Parser.h"
 #include "Exception.h"
 #include "Token.h"
-#define DEBUG_ON 1
+#define DEBUG_ON 0
 
 #if DEBUG_ON
     #define DEBUG_TRACE(msg) std::cerr << "[TRACE] " << msg << std::endl
@@ -13,8 +13,10 @@
 Program* Parser::ParseProgram(std::vector<Token>::const_iterator& itr, const std::vector<Token>::const_iterator& end) {
     Program* program = new Program();
     DEBUG_TRACE("ParseProgram");
+     
     while (itr != end && itr->tag != Token::END) {
     Statement* stmt = ParseStatement(itr, end);
+
     if (stmt) {
         program->stmts.push_back(stmt);
     }
@@ -341,7 +343,9 @@ Expression* Parser::ParseTerm(std::vector<Token>::const_iterator& itr, const std
     //DEBUG_TRACE("ParseTerm: " << *itr);
     Expression* left = ParseUnary(itr, end);
     
-    while (itr != end && (itr->tag == Token::MUL || itr->tag == Token::DIV || itr->tag == Token::DIVINT || itr->tag == Token::MOD)) {
+    //while (itr != end && (itr->tag == Token::MUL || itr->tag == Token::DIV || itr->tag == Token::DIVINT || itr->tag == Token::MOD)) {
+    while (itr != end && (itr->tag == Token::MUL || itr->tag == Token::DIV || itr->tag == Token::DIVINT)) {
+
         Token op = *itr;
         Next(itr,end);
         Expression* right = ParseUnary(itr, end);

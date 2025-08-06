@@ -1,6 +1,6 @@
 #!/bin/bash
 
-EXEC=./eval_test
+EXEC=./eval_test_newline
 TESTDIR=./test/VettoriTest
 
 for file in "$TESTDIR"/*.txt; do
