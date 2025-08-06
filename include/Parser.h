@@ -76,7 +76,6 @@ public:
         Location* ParseLocation(std::vector<Token>::const_iterator& itr, const std::vector<Token>::const_iterator& end);
         
         
-        // Helper function to advance the iterator
         inline void Next(std::vector<Token>::const_iterator& itr, const std::vector<Token>::const_iterator& end) {
             if (itr != end) {
                 ++itr;
@@ -84,12 +83,14 @@ public:
                 throw ParseError("Unexpected end of input.");
             }
         }
-        // Helper function to generate error messages
 
         inline std::string GenError (std::vector<Token>::const_iterator& itr, const int tag) {
+
+
             std::stringstream err;
             err << "Expected token '" << Token::id2word[tag] << "' at line " << itr->pos.first << ", column " << itr->pos.second << std::endl
                 << "Found token '" << Token::id2word[itr->tag] << "'";
+                
             return err.str();
         }
 

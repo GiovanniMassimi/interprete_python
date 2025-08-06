@@ -10,6 +10,11 @@ void Lexer::tokenizeFile(std::ifstream& input, std::vector<Token>& tokens) {
     std::vector<int> indentStack = {0}; // Stack per gestire l'indentazione
     ch = input.get();
     while ( !input.eof()) {
+        if (ch == '\r') { //ne ho trovati alcuni nei vettori di test
+            ch = input.get();
+            continue;
+        }
+        
         if (ch == '\n') {
             tokens.emplace_back(Token{Token::NEWLINE, Token::id2word[Token::NEWLINE], {line, column}});
             line++;
@@ -141,8 +146,8 @@ void Lexer::tokenizeFile(std::ifstream& input, std::vector<Token>& tokens) {
                 column += 2; // Incremento di 2 per il carattere '=' aggiuntivo
             } else {
                 std::stringstream err;
-                err << "Error: Unrecognized character '!' at line " << line << ", column" << column;
-                throw LexicalError{err.str()};    
+                err << "Error: Unrecognized character '!' at line " << line << ", column " << column << ", character '" << ch << "'";
+                throw LexicalError{err.str()};
             }
         }else if (std::isalpha(ch)) { // identificatori e parole chiave
             std::string temp;
@@ -191,8 +196,9 @@ void Lexer::tokenizeFile(std::ifstream& input, std::vector<Token>& tokens) {
             }
             tokens.emplace_back(Token{Token::NUM, temp, {line, column}});
         } else{
-            std:: stringstream err;
-            err << "Error: Unrecognized character '" << ch << "' at line " << line << ", column " << column;
+           std::stringstream err;
+            err << "Error: Unrecognized character '" << ch << "' at line " << line << ", column " << column
+            << " (ASCII: " << static_cast<int>(ch) << ")";
             throw LexicalError{err.str()};
         }
         ch = input.get();
