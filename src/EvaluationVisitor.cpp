@@ -231,7 +231,7 @@ void EvaluationVisitor::visit(const Term& node) {
 }
 
 void EvaluationVisitor::visit(const Unary& node) {
-    node.expr->accept(*this);
+    node.right->accept(*this);
     if (node.op.tag == Token::NOT) {
         result = Value(!result.asBool());
     } else if (node.op.tag == Token::SUB) {

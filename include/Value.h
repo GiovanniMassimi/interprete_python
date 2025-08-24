@@ -3,12 +3,12 @@
 
 #include <string>
 #include <vector>
-
-//idea da un video youtube
+#include <sstream>
+#include <stdexcept>
 
 class Value {
 public:
-    enum class Type { INT, BOOL, LIST, NONE };
+    enum class Type { INT, BOOL, LIST };
 
 private:
     Type type_;
@@ -17,10 +17,11 @@ private:
     std::vector<Value> list_val_;
 
 public:
-    Value() : type_(Type::NONE) {}
     Value(int v) : type_(Type::INT), int_val_(v) {}
     Value(bool b) : type_(Type::BOOL), bool_val_(b) {}
     Value(std::vector<Value> v) : type_(Type::LIST), list_val_(std::move(v)) {}
+    Value() : type_(Type::INT), int_val_(0) {}
+
 
     Type type() const { return type_; }
 
@@ -34,12 +35,12 @@ public:
     }
 
     int asInt() const {
-        if (type_ != Type::INT) throw EvaluationError("Value is not an int");
+        if (type_ != Type::INT) throw std::runtime_error("Value is not an int");
         return int_val_;
     }
 
     bool asBool() const {
-        if (type_ != Type::BOOL) throw EvaluationError("Value is not a bool");
+        if (type_ != Type::BOOL) throw std::runtime_error("Value is not a bool");
         return bool_val_;
     }
 
@@ -60,44 +61,38 @@ public:
                 ss << "]";
                 return ss.str();
             }
-            default:
-                return "None";
         }
+        throw std::runtime_error("Invalid Value type"); // should never happen
     }
-
 
     bool operator==(const Value& other) const {
-    if (type_ != other.type_) {
-        return false;
-    }
+        if (type_ != other.type_) return false;
 
-    switch (type_) {
-        case Type::INT:
-            return int_val_ == other.int_val_;
-        case Type::BOOL:
-            return bool_val_ == other.bool_val_;
-        case Type::LIST:
-            return list_val_ == other.list_val_;
-        case Type::NONE:
-            return true;
-        default:
-            throw std::runtime_error("Unexpected Value type in operator==");
-    }
+        switch (type_) {
+            case Type::INT:
+                return int_val_ == other.int_val_;
+            case Type::BOOL:
+                return bool_val_ == other.bool_val_;
+            case Type::LIST:
+                return list_val_ == other.list_val_;
+        }
+        throw std::runtime_error("Invalid Value type in operator==");
     }
 
     bool operator<(const Value& other) const {
         if (type_ != other.type_)
             throw std::runtime_error("Cannot compare different types");
 
-            switch (type_) {
-                case Type::INT:
-                    return int_val_ < other.int_val_;
-                case Type::BOOL:
-                    return bool_val_ < other.bool_val_;
-                default:
-                    throw std::runtime_error("Cannot compare this type");
-            }
+        switch (type_) {
+            case Type::INT:
+                return int_val_ < other.int_val_;
+            case Type::BOOL:
+                return bool_val_ < other.bool_val_;
+            case Type::LIST:
+                throw std::runtime_error("Cannot compare lists");
         }
+        throw std::runtime_error("Invalid Value type in operator<");
+    }
 
     bool operator>(const Value& other) const {
         if (type_ != other.type_)
@@ -108,9 +103,10 @@ public:
                 return int_val_ > other.int_val_;
             case Type::BOOL:
                 return bool_val_ > other.bool_val_;
-            default:
-                throw std::runtime_error("Cannot compare this type");
+            case Type::LIST:
+                throw std::runtime_error("Cannot compare lists");
         }
+        throw std::runtime_error("Invalid Value type in operator>");
     }
 
     bool operator<=(const Value& other) const {
@@ -120,11 +116,11 @@ public:
     bool operator>=(const Value& other) const {
         return *this > other || *this == other;
     }
-
 };
 
 inline std::ostream& operator<<(std::ostream& os, const Value& val) {
     os << val.toString();
     return os;
 }
-#endif 
+
+#endif

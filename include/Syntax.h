@@ -73,17 +73,17 @@ struct Append : SimpleStatement {
 };
 
 struct Break : SimpleStatement {
-    int line_number; 
+    int line;
 
-    Break(int line_number) : line_number(line_number) {}
+    Break(int line) : line(line) {}
 
     void accept(Visitor& visitor) const ;
 };
 
 struct Continue : SimpleStatement {
-    int line_number;
+    int line;
 
-    Continue(int line_number) : line_number(line_number) {}
+    Continue(int line) : line(line) {}
 
     void accept(Visitor& visitor) const ;
 };
@@ -211,9 +211,9 @@ struct Term : Expression {
 
 struct Unary : Expression {
     Token op; 
-    Expression* expr;
+    Expression* right;
 
-    Unary(Token op, Expression* expr) : op(op), expr(expr) {}
+    Unary(Token op, Expression* right) : op(op), right(right) {}
 
     void accept(Visitor& visitor) const ;
 };

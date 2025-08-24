@@ -68,12 +68,12 @@ class PrintVisitor : public Visitor {
 
     void visit(const Break& node) override {
         printIndent();
-        console_ << "Break at line: " << node.line_number << "\n";
+        console_ << "Break, at " << node.line << "\n";
     }
 
     void visit(const Continue& node) override {
         printIndent();
-        console_ << "Continue at line: " << node.line_number << "\n";
+        console_ << "Continue, at " << node.line << "\n";
     }
 
     void visit(const Print& node) override {
@@ -192,7 +192,7 @@ class PrintVisitor : public Visitor {
         printIndent();
         console_ << "Unary Expression: " << node.op.word << "\n";
         indent++;
-        if (node.expr) node.expr->accept(*this);
+        if (node.right) node.right->accept(*this);
         indent--;
     }
 

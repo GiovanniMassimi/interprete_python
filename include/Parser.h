@@ -74,7 +74,7 @@ public:
 
             std::stringstream err;
             err << "Expected token '" << Token::id2word[tag] << "' at line " << itr->pos.first << ", column " << itr->pos.second
-                << "Found token '" << Token::id2word[itr->tag] << "'";
+                << ", Found token '" << Token::id2word[itr->tag] << "'";
                 
             return err.str();
         }
