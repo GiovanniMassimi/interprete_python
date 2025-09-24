@@ -14,7 +14,7 @@ int main(int argc, char* argv[]) {
 
     std::ifstream input(argv[1]);
     if (!input.is_open()) {
-        std::cerr << "Errore nell'apertura del file: " << argv[1] << "\n";
+        std::cerr << "Error: nell'apertura del file: " << argv[1] << "\n";
         return 1;
     }
 
@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
             std::cout << token << "\n";  // richiede operator<< definito per Token
         }
     } catch (const std::exception& ex) {
-        std::cerr << "Errore durante la tokenizzazione: " << ex.what() << "\n";
+        std::cerr << "Error: durante la tokenizzazione: " << ex.what() << "\n";
         return 1;
     }
 

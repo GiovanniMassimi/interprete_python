@@ -2,8 +2,6 @@
 g++ -std=c++20 -Iinclude \
     src/main.cpp src/Lexer.cpp src/Parser.cpp src/Syntax.cpp src/EvaluationVisitor.cpp \
     -o parser_test
-
-./parser_test PASS_SumVec.txt
 */
 #include <iostream>
 #include <fstream>
@@ -17,63 +15,66 @@ g++ -std=c++20 -Iinclude \
 #include "PrintVisitor.h"
 #include "EvaluationVisitor.h"
 
-#define DEBUG_ON 0
+#define DEBUG_ON 1
 
 int main(int argc, char* argv[]) {
-    if (argc < 2) {
+    if (argc < 2) { // Check for input file argument
         std::cerr << "Using: " << argv[0] << " <file.txt>\n";
         return 1;
     }
 
-    std::ifstream input(argv[1]);
+    std::ifstream input(argv[1]); // Open the input file
     if (!input.is_open()) {
-        std::cerr << "Error opening file: " << argv[1] << "\n";
+        std::cerr << "Error: (file) failed to open file: " << argv[1] << "\n";
         return 1;
     }
 
-    Lexer lexer;
-    std::vector<Token> tokens;
+    Lexer lexer; // Create a lexer instance
+    std::vector<Token> tokens; // Vector to hold the tokens
 
     try {
-        lexer.tokenizeFile(input, tokens);
+        lexer.tokenizeFile(input, tokens); // Tokenize the input file
         if (DEBUG_ON) std::cout <<"Tokenizing completed successfully. Number of tokens: " << tokens.size() << "\n";
-    } catch (const LexicalError& ex) {
-        std::cerr << "Errore nel lexer: " << ex.what() << "\n";
+    } catch (const LexicalError& err) { // Catch lexical errors
+        std::cerr << "Error: (lexing) " << err.what() << "\n";
         return 1;
-    } catch (const std::exception& ex) {
-        std::cerr << "Generic error in lexer: " << ex.what() << "\n";
+    } catch (const std::exception& err) { // Catch other exceptions
+        std::cerr << "Error: (generic) " << err.what() << "\n";
         return 1;
     }
 
     try {
-        Parser parser;
-        Program* ast = parser.parse(tokens);
+        Parser parser; // Create a parser instance
+        Program* ast = parser.parse(tokens); // Parse the tokens into an AST
 
         if (DEBUG_ON) std::cout << "Parsing completed successfully.\n";
 
-        // --- AST Debug 
+        // Debug for ast
         if (DEBUG_ON) {
-            std::cout << "\n--- AST ---\n";
+            std::cout << "\n----- AST ----\n";
             PrintVisitor printer(std::cout);
             ast->accept(printer);
         }
         
 
-        // --- Valutazione
-        if (DEBUG_ON) std::cout << "\n--- Program Execution ---\n";
-        SymbolTable table;
-        EvaluationVisitor evaluator(table, std::cout);
-        ast->accept(evaluator);
+        // Evaluation
+        if (DEBUG_ON) std::cout << "\n----- Program Execution ----\n";
+        SymbolTable table; // Create a symbol table instance
+        EvaluationVisitor evaluator(table, std::cout); // Create an evaluation visitor
+        ast->accept(evaluator); // Evaluate the AST
 
         delete ast;
-    } catch (const ParseError& pex) {
-        std::cerr << "Parsing Error: " << pex.what() << "\n";
+    } catch (const ParseError& parse_err) { // Catch parsing errors
+        std::cerr << "Error: (parsing) " << parse_err.what() << "\n";
         return 1;
-    } catch (const EvaluationError& eex) {
-        std::cerr << "Evaluation Error: " << eex.what() << "\n";
+    } catch (const EvaluationError& eval_err) { // Catch evaluation errors
+        std::cerr << "Error: (evaluation) " << eval_err.what() << "\n";
         return 1;
-    } catch (const std::exception& ex) {
-        std::cerr << "Generic Error: " << ex.what() << "\n";
+    } catch (const TypeError& type_err) { // Catch type errors
+        std::cerr << "Error: (type) " << type_err.what() << "\n";
+        return 1;
+    } catch (const std::exception& err) { // Catch other exceptions
+        std::cerr << "Error: (generic) " << err.what() << "\n";
         return 1;
     }
 

@@ -12,13 +12,14 @@
 class SymbolTable {
 
 public:
+    //constructors and destructors
 	SymbolTable() = default;
 	~SymbolTable() = default;
 
 	SymbolTable(const SymbolTable& other) = delete;
 	SymbolTable& operator=(const SymbolTable& other) = delete;
 
-    //riferimento modificabile per append
+    //gives a modifiable reference for the append case
     Value& getValueMod(std::string const& key) {
     auto itr = map.find(key);
     if (itr == map.end()) {
@@ -29,6 +30,7 @@ public:
     return itr->second;
     }
 
+    // function to get the value of a variable
 	Value getValue(std::string const& key) const {
     auto itr = map.find(key);
     if (itr == map.end()) {
@@ -39,10 +41,12 @@ public:
     return itr->second;
     }
 
+    // function to set the value of a variable
 	void setValue(std::string const& key, Value value) {
 		map[key] = value;
 	}
 
+    //function for debugging
     void PrintSymbols(std::ostream& out) const {
         out << "---- Symbol Table ----" << std::endl;
         for (const auto& [key, val] : map) {
@@ -52,6 +56,7 @@ public:
     }
 
     private:
+        //map of variable names and values
         std::unordered_map<std::string, Value> map;
 
 };

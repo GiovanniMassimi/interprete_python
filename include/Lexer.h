@@ -9,6 +9,7 @@
 
 class Lexer {
     public:
+        //constructors and destructors
         Lexer() = default;
         ~Lexer() = default;
         Lexer(Lexer const&) = delete;

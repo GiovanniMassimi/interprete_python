@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
 
     std::ifstream input(argv[1]);
     if (!input.is_open()) {
-        std::cerr << "Errore nell'aprire il file: " << argv[1] << "\n";
+        std::cerr << "Error: failed to open file: " << argv[1] << "\n";
         return 1;
     }
 
@@ -34,9 +34,9 @@ int main(int argc, char* argv[]) {
 
     try {
         lexer.tokenizeFile(input, tokens);
-        std::cout << "Tokenizzazione completata con successo. Numero di token: " << tokens.size() << "\n";
+        std::cout << "Tokenization completed successfully. Number of tokens: " << tokens.size() << "\n";
     } catch (const std::exception& ex) {
-        std::cerr << "Errore nel lexer: " << ex.what() << "\n";
+        std::cerr << "Error: failed to tokenize input: " << ex.what() << "\n";
         return 1;
     }
 
@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
         Parser parser;
         Program* ast = parser.parse(tokens);
 
-        std::cout << "Parsing completato correttamente.\n";
+        std::cout << "Parsing completed successfully.\n";
 
         // Stampa l’AST
         PrintVisitor printer(std::cout);
@@ -53,10 +53,10 @@ int main(int argc, char* argv[]) {
 
         delete ast;
     } catch (const ParseError& pex) {
-        std::cerr << "Errore di parsing: " << pex.what() << "\n";
+        std::cerr << "Error: parsing error: " << pex.what() << "\n";
         return 1;
     } catch (const std::exception& ex) {
-        std::cerr << "Errore generico: " << ex.what() << "\n";
+        std::cerr << "Error:  " << ex.what() << "\n";
         return 1;
     }
 

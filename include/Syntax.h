@@ -5,8 +5,15 @@
 #include <vector>
 #include "Token.h"
 
+
 // Forward declarations
 class Visitor;
+
+//Definition of the syntax grammar
+
+///////////////////////////////
+// Statement structures.    //
+///////////////////////////////
 
 struct Statement {
     virtual void accept(Visitor& visitor) const;
@@ -154,9 +161,14 @@ struct IfStatement : CompoundStatement {
     void accept(Visitor& visitor) const ;
 };
 
+///////////////////////////////
+// Expression structures.   //
+///////////////////////////////
+
+
 struct Join : Expression {
-    Expression* left;
-    Token op; 
+    Expression* left; 
+    Token op; // or, and
     Expression* right;
 
     Join(Expression* left, Token op, Expression* right)
@@ -167,7 +179,7 @@ struct Join : Expression {
 
 struct Equality : Expression {
     Expression* left;
-    Token op; 
+    Token op; // ==, !=
     Expression* right;
 
     Equality(Expression* left, Token op, Expression* right)
@@ -178,7 +190,7 @@ struct Equality : Expression {
 
 struct Relation : Expression {
     Expression* left;
-    Token op; 
+    Token op; // <, <=, >, >=, +, -
     Expression* right;
 
     Relation(Expression* left, Token op, Expression* right)
@@ -189,7 +201,7 @@ struct Relation : Expression {
 
 struct NumExpr : Expression {
     Expression* left;
-    Token op; 
+    Token op; // +, -
     Expression* right;
 
     NumExpr(Expression* left, Token op, Expression* right)
@@ -200,7 +212,7 @@ struct NumExpr : Expression {
 
 struct Term : Expression {
     Expression* left;
-    Token op; 
+    Token op; // *, '//'
     Expression* right;
 
     Term(Expression* left, Token op, Expression* right)
@@ -210,7 +222,7 @@ struct Term : Expression {
 };
 
 struct Unary : Expression {
-    Token op; 
+    Token op; // not, -
     Expression* right;
 
     Unary(Token op, Expression* right) : op(op), right(right) {}
@@ -220,21 +232,15 @@ struct Unary : Expression {
 
 
 struct Literal : Expression {
-    Token value; // se is_bool true rappresenta 1 True e 0 False se no e il numero
-    bool is_bool; 
+    Token value; 
 
-    Literal(Token value) : value(value), is_bool(false) {
-        if (value.tag == Token::TRUE_ || value.tag == Token::FALSE_) {
-            is_bool = true;
-        }
-    }
-
+    Literal(Token value) : value(value) {}
     void accept(Visitor& visitor) const ;
 };
 
 struct Factor : Expression {
-    Literal token; // può essere un numero, True, False, o un'espressione
-    Expression* expr; // se è un'espressione tra parentesi
+    Literal token; // can be a number, True, False, or an expression
+    Expression* expr; // if it's an expression in parentheses
 
     Factor(Literal token, Expression* expr) : token(token), expr(expr) {}
 
@@ -243,7 +249,7 @@ struct Factor : Expression {
 
 struct Location : Expression {
     Token id;
-    Expression* index; // può essere nullptr se non è un'accesso a lista
+    Expression* index; // can be nullptr if not a list access
 
     Location(Token id, Expression* index = nullptr) : id(id), index(index) {}
 

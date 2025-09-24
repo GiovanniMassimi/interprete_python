@@ -1,6 +1,8 @@
 #include "Syntax.h"
 #include "Visitor.h"
 
+// Accept visitor for each syntax node
+
 void Program::accept(Visitor& visitor) const {
     visitor.visit(*this);
 }

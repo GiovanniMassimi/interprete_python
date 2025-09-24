@@ -27,6 +27,12 @@ struct ParseError : std::runtime_error {
 	ParseError(std::string msg) : std::runtime_error(msg.c_str()) {}
 };
 
+struct TypeError : std::runtime_error {
+    TypeError(const char* msg) : std::runtime_error(msg) {}
+    TypeError(std::string msg) : std::runtime_error(msg.c_str()) {}
+};
+
+// exception to handle break and continue with try and catch in while loops
 struct BreakException : public std::exception {
     const char* what() const noexcept override { return "Break statement encountered"; }
 };

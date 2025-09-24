@@ -4,20 +4,20 @@
 #include "Lexer.h"
 
 void Lexer::tokenizeFile(std::ifstream& input, std::vector<Token>& tokens) {
-    char ch{};
-    unsigned int line = 1;
+    char ch{}; 
+    unsigned int line = 1; 
     unsigned int column = 0;
-    std::vector<int> indentStack = {0}; // Stack per gestire l'indentazione
+    std::vector<int> indentStack = {0}; // Stack for managing indentation
     ch = input.get();
-    while ( !input.eof()) {
+    while ( !input.eof()) { 
 
-        
-        if (ch == '\r') { //ne ho trovati alcuni nei vettori di test
+
+        if (ch == '\r') { // I found some in the test vectors
             ch = input.get();
             continue;
         }
-        
-        if (ch == '\n') {
+
+        if (ch == '\n') { // Change line set column to zero when newline found
             tokens.emplace_back(Token{Token::NEWLINE, Token::id2word[Token::NEWLINE], {line, column}});
             line++;
             column = 0;
@@ -26,16 +26,15 @@ void Lexer::tokenizeFile(std::ifstream& input, std::vector<Token>& tokens) {
             while (true) {
                 char next = input.peek();
                 if (next == ' ') {
-                    input.get();
+                    input.get(); // consume space
                     spaces++;
                     
                 } else if (next == '\t') {
                     input.get();
-                    spaces += 4; // tab = 4 spazi
+                    spaces += 4; // tab = 4 spaces
                     column += 4;
                 } else if (next == '\n' || next == '\r') {//consume empty rows
                     input.get();
-                    //tokens.emplace_back(Token{Token::NEWLINE, Token::id2word[Token::NEWLINE], {line, column}});
                     line++;
                     column = 0;
                     spaces = 0;
@@ -43,12 +42,12 @@ void Lexer::tokenizeFile(std::ifstream& input, std::vector<Token>& tokens) {
                     break;
                 }
             }
-            
-            if (spaces > indentStack.back()) {
+
+            if (spaces > indentStack.back()) { //Create indent token
                 indentStack.push_back(spaces);
                 tokens.emplace_back(Token{Token::INDENT, Token::id2word[Token::INDENT], {line, column}});
             } else {
-                while (spaces < indentStack.back()) {
+                while (spaces < indentStack.back()) { //Create dedent token
                     indentStack.pop_back();
                     tokens.emplace_back(Token{Token::DEDENT, Token::id2word[Token::DEDENT], {line, column}});
                 }
@@ -62,7 +61,7 @@ void Lexer::tokenizeFile(std::ifstream& input, std::vector<Token>& tokens) {
             continue;
         }
 
-        if (ch == ' ' || ch == '\t') {
+        if (ch == ' ' || ch == '\t') { 
             column += (ch == ' ') ? 1 : 4;
             ch = input.get();
             continue;
@@ -73,7 +72,7 @@ void Lexer::tokenizeFile(std::ifstream& input, std::vector<Token>& tokens) {
             tokens.emplace_back(Token{Token::RP, Token::id2word[Token::RP], {line, column}});
             column++;
         } else if (ch == '=') {
-            if (input.peek() == '=') { // ==
+            if (input.peek() == '=') { // Check for ==
                 input.get();
                 tokens.emplace_back(Token{Token::EQEQ, Token::id2word[Token::EQEQ], {line, column}});
                 column += 2; 
@@ -91,21 +90,21 @@ void Lexer::tokenizeFile(std::ifstream& input, std::vector<Token>& tokens) {
             tokens.emplace_back(Token{Token::MUL, Token::id2word[Token::MUL], {line, column}});
             column++;
         } else if (ch == '/') {
-            if (input.peek() == '/') { // //
+            if (input.peek() == '/') { // Check for //
                 input.get();
                 tokens.emplace_back(Token{Token::DIVINT, Token::id2word[Token::DIVINT], {line, column}});
                 column += 2;
-            } else {
+            } else { // added but not used 
                 tokens.emplace_back(Token{Token::DIV, Token::id2word[Token::DIV], {line, column}});
                 column++;
             }
         }/* else if (ch == '%') {
             tokens.emplace_back(Token{Token::MOD, Token::id2word[Token::MOD], {line, column}});
             column++;
-        }*/else if (ch == ';') {
+        }else if (ch == ';') { // found it in the test vectors but not used
             tokens.emplace_back(Token{Token::SEMCOL, Token::id2word[Token::SEMCOL], {line, column}});
             column++;
-        } else if (ch == '.') {
+        }*/ else if (ch == '.') {
             tokens.emplace_back(Token{Token::DOT, Token::id2word[Token::DOT], {line, column}});
             column++;
         } else if (ch == ':') {
@@ -118,7 +117,7 @@ void Lexer::tokenizeFile(std::ifstream& input, std::vector<Token>& tokens) {
             tokens.emplace_back(Token{Token::RB, Token::id2word[Token::RB], {line, column}});
             column++;
         } else if (ch == '<') {
-            if (input.peek() == '=') { //  <=
+            if (input.peek() == '=') { // Check for <=
                 input.get();
                 tokens.emplace_back(Token{Token::LE, Token::id2word[Token::LE], {line, column}});
                 column += 2; 
@@ -127,7 +126,7 @@ void Lexer::tokenizeFile(std::ifstream& input, std::vector<Token>& tokens) {
                 column++;
             }
         } else if (ch == '>') {
-            if (input.peek() == '=') { //  >=
+            if (input.peek() == '=') { // Check for >=
                 input.get();
                 tokens.emplace_back(Token{Token::GE, Token::id2word[Token::GE], {line, column}});
                 column += 2; 
@@ -136,7 +135,7 @@ void Lexer::tokenizeFile(std::ifstream& input, std::vector<Token>& tokens) {
                 column++;
             }
         } else if (ch == '!') {
-            if (input.peek() == '=') { // !=
+            if (input.peek() == '=') { // Check for !=
                 input.get();
                 tokens.emplace_back(Token{Token::NOTEQ, Token::id2word[Token::NOTEQ], {line, column}});
                 column += 2;
@@ -183,7 +182,7 @@ void Lexer::tokenizeFile(std::ifstream& input, std::vector<Token>& tokens) {
             } else {
                 tokens.emplace_back(Token{Token::ID, temp, {line, column}});
             }
-        } else if (std::isdigit(ch)) {
+        } else if (std::isdigit(ch)) { // Check for numbers
             std::string temp;
             temp += ch;
             while (std::isdigit(input.peek())) {
@@ -192,8 +191,8 @@ void Lexer::tokenizeFile(std::ifstream& input, std::vector<Token>& tokens) {
             }
             tokens.emplace_back(Token{Token::NUM, temp, {line, column}});
         } else{
-           std::stringstream err;
-            err << " Unrecognized character '" << ch << "' at line " << line << ", column " << column;
+            std::stringstream err;
+            err << "Error: (lexing) unrecognized character '" << ch << "' at line " << line << ", column " << column;
             //<< " (ASCII: " << static_cast<int>(ch) << ")";
             throw LexicalError{err.str()};
         }

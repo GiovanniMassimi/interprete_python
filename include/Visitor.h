@@ -6,7 +6,7 @@
 class Visitor {
     public:
 
-
+        // Visit methods for each syntax node
         virtual void visit(const Program& program) = 0;
         virtual void visit(const Statement& statement) = 0;
         virtual void visit(const Expression& expression) = 0;
@@ -35,6 +35,7 @@ class Visitor {
         virtual void visit(const Location& location) = 0;
         virtual void visit(const Literal& literal) = 0;
 
+        // Virtual destructor
         virtual ~Visitor() = default;
 
 };

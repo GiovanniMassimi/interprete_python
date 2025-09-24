@@ -20,7 +20,7 @@ struct Token {
     static constexpr int NEWLINE= 11;
     static constexpr int INDENT = 12;
     static constexpr int DEDENT = 13;
-    static constexpr int SEMCOL = 14; // ;
+    static constexpr int SEMCOL = 14; // ; found in the test vectors but not used
     static constexpr int DOT    = 15; // .
     static constexpr int COLON  = 16; // :
     static constexpr int ID     = 17; // Identificators
@@ -46,7 +46,7 @@ struct Token {
     static constexpr int END    = 37; // EOF
     static constexpr int LB     = 38; // [
     static constexpr int RB     = 39; // ]
-
+    // Token string representations
     static constexpr const char* id2word[] = {
         "(", ")", "=", "+", "-", "*", "/", "//", "%", "PRINT", "NUM",
         "NEWLINE", "INDENT", "DEDENT", ";", ".", ":", "ID", "TRUE", "FALSE", "IF", "ELIF", "ELSE", 
@@ -59,18 +59,19 @@ struct Token {
         "WHILE", "BREAK", "CONTINUE", "AND", "OR", "NOT","EQEQ", "NOTEQ", "LT", "LE", "GE", "GT","LIST", "APPEND", "END", "LB", "RB"
     };
 
+    // Constructor and destructor
     Token(int t, const std::string& w, std::pair<int, int> pos) : tag{ t }, word{ w }, pos{ pos } {}
     ~Token() = default;
     Token(const Token&) = default;
     Token& operator=(const Token&) = default;
 
-    int tag;
-    std::string word;  
-    std::pair<int, int> pos;
+    int tag; // token type
+    std::string word; // token value (for ID and NUM)
+    std::pair<int, int> pos; // (line, column) position in the source code for error reporting
 
 };
 
-
+ // Overload the output stream operator for easy printing of tokens
 inline std::ostream& operator<<(std::ostream& os, const Token& t) {
     const char* tagName = (t.tag >= 0 && t.tag < 40) ? Token::tag2string[t.tag] : "UNKNOWN";
     os << "Token(" << tagName << ", \"" << t.word << "\", (" << t.pos.first << ", " << t.pos.second << "))";

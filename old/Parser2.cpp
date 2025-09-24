@@ -74,7 +74,7 @@ Statement* Parser::ParseStatement(auto& itr, const auto& end) {
                 } else if (std::next(itr) != end && std::next(itr)->tag == Token::DOT) {
                     return ParseAppend(itr, end);
                 } else {
-                    throw ParseError("Errore di sintassi: atteso '=' o '[' dopo l'identificatore.");
+                    throw ParseError("Error: (parsing) expected '=' or '[' after identifier.");
                 }
             }
             case Token::BREAK:
@@ -88,7 +88,7 @@ Statement* Parser::ParseStatement(auto& itr, const auto& end) {
             case Token::WHILE:
                 return ParseWhileStatement(itr, end);
             default:
-                throw ParseError("Errore di sintassi: istruzione non riconosciuta.");
+                throw ParseError("Error: (parsing) unrecognized statement.");
         }
     }
 
@@ -102,7 +102,7 @@ Assignment* Parser::ParseAssignment(auto& itr, const auto& end) {
     Next(itr, end);
     Expression* value = ParseExpression(itr, end);
     if (value == nullptr) {
-        throw ParseError("Errore di sintassi: valore mancante dopo '='.");
+        throw ParseError("Error: (parsing) missing value after '='.");
     }
     return new Assignment(id, eq, value);
 }
@@ -117,7 +117,7 @@ ListAssignment* Parser::ParseListAssignment(auto& itr, const auto& end) {
     Next(itr, end);
     Expression* pos = ParseExpression(itr, end);
     if (pos == nullptr) {
-        throw ParseError("Errore di sintassi: espressione mancante tra '[' e ']'.");
+        throw ParseError("Error: (parsing) missing expression between '[' and ']'.");
     }
     if (itr->tag != Token::RB) {
         throw ParseError(GenError(itr, Token::RB));
@@ -131,7 +131,7 @@ ListAssignment* Parser::ParseListAssignment(auto& itr, const auto& end) {
     Next(itr, end);
     Expression* value = ParseExpression(itr, end);
     if (value == nullptr) {
-        throw ParseError("Errore di sintassi: valore mancante dopo '='.");
+        throw ParseError("Error: (parsing) missing value after '='.");
     }
     return new ListAssignment(id, LB, pos, RB, eq, value);
 }
@@ -188,7 +188,7 @@ Append* Parser::ParseAppend(auto& itr, const auto& end) {
     Next(itr, end);
     Expression* value = ParseExpression(itr, end);
     if (value == nullptr) {
-        throw ParseError("Errore di sintassi: valore mancante dopo 'append('.");
+        throw ParseError("Error: (parsing) missing value after 'append('.");
     }
     if (itr->tag != Token::RP) {
         throw ParseError(GenError(itr, Token::RP));
@@ -237,7 +237,7 @@ Print* Parser::ParsePrint(auto& itr, const auto& end) {
     Next(itr, end);
     Expression* value = ParseExpression(itr, end);
     if (value == nullptr) {
-        throw ParseError("Errore di sintassi: valore mancante dopo 'print('.");
+        throw ParseError("Error: (parsing) missing value after 'print('.");
     }
     if (itr->tag != Token::RP) {
         throw ParseError(GenError(itr, Token::RP));
@@ -343,7 +343,7 @@ Expression* Parser::ParseUnary(auto& itr) {
 Expression* Parser::ParseFactor(auto& itr) {
     // parsing di fattori
     if (itr == end) {
-        throw ParseError("Errore di sintassi: fattore mancante.");
+        throw ParseError("Error: (parsing) missing factor.");
     }
 
     if (itr->tag == Token::LP) {
@@ -378,7 +378,7 @@ Expression* Parser::ParseFactor(auto& itr) {
         return new Literal(false_token);
     }
 
-    throw ParseError("Errore di sintassi: fattore non valido.");
+    throw ParseError("Error: (parsing) invalid factor.");
 }
 
 IfStatement* Parser::ParseIfStatement(auto& itr) {

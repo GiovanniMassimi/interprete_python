@@ -12,12 +12,17 @@ class EvaluationVisitor : public Visitor {
     std::ostream& console_;
 
 public:
+    // Constructor and destructor
     EvaluationVisitor(SymbolTable& table, std::ostream& con)
         : symbolTable{table}, console_{con}, result{0} {}
+    ~EvaluationVisitor() override = default;
+    EvaluationVisitor(EvaluationVisitor const&) = delete;
+    EvaluationVisitor& operator=(EvaluationVisitor const&) = delete;    
 
     Value result; 
+    bool insideLoop = false; // Track if inside a loop for break/continue handling outside loops
 
-    // Dichiarazioni dei visit
+    // Visit declarations
     void visit(const Program& node) override;
     void visit(const Statement& node) override;
     void visit(const Expression& node) override;

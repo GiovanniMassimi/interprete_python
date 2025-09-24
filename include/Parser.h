@@ -18,10 +18,10 @@ public:
     Parser(const Parser&) = delete;
     Parser& operator=(const Parser&) = delete;
     
-    //funzione di parsing principale
+    // Main parse function
     Program* parse(const std::vector<Token>& tokens) {
-        auto itr = tokens.begin();
-        auto end = tokens.end();
+        auto itr = tokens.begin(); // iterator to traverse the tokens
+        auto end = tokens.end(); 
         Program* program = ParseProgram(itr, end);
         if (itr != end) {
             throw ParseError("Token at the end of parsing not processed: ");
@@ -32,7 +32,7 @@ public:
 
     private:
 
-
+        //Parse functions for all grammar elements
         Program* ParseProgram(std::vector<Token>::const_iterator& itr, const std::vector<Token>::const_iterator& end);
         Statement* ParseStatement(std::vector<Token>::const_iterator& itr, const std::vector<Token>::const_iterator& end);
         Expression* ParseExpression(std::vector<Token>::const_iterator& itr, const std::vector<Token>::const_iterator& end);
@@ -59,8 +59,8 @@ public:
         Expression* ParseUnary(std::vector<Token>::const_iterator& itr, const std::vector<Token>::const_iterator& end);
         Expression* ParseFactor(std::vector<Token>::const_iterator& itr, const std::vector<Token>::const_iterator& end);
         Location* ParseLocation(std::vector<Token>::const_iterator& itr, const std::vector<Token>::const_iterator& end);
-        
-        
+
+        // Helper function to advance the iterator
         inline void Next(std::vector<Token>::const_iterator& itr, const std::vector<Token>::const_iterator& end) {
             if (itr != end) {
                 ++itr;
@@ -69,11 +69,12 @@ public:
             }
         }
 
+        //helper function to generate error messages
         inline std::string GenError (std::vector<Token>::const_iterator& itr, const int tag) {
 
 
             std::stringstream err;
-            err << "Expected token '" << Token::id2word[tag] << "' at line " << itr->pos.first << ", column " << itr->pos.second
+            err << " expected token '" << Token::id2word[tag] << "' at line " << itr->pos.first << ", column " << itr->pos.second
                 << ", Found token '" << Token::id2word[itr->tag] << "'";
                 
             return err.str();
